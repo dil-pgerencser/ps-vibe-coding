@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rowan Adeyemi · Product Designer · Roster (v2)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --paper: #ffffff;
+    --paper2: #f1f5f9;
+    --ink: #0f172a;
+    --ink2: #475569;
+    --ink3: #94a3b8;
+    --border: #e2e8f0;
+    --green: #00a550;
+    --green-bg: #e6f7ee;
+    --amber: #b45309;
+    --amber-bg: #fffbeb;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --cta: #00a550;
+    --cta-hover: #008f44;
+    --radius: 10px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.04);
+  }
+
+  html { background: var(--paper2); color: var(--ink); font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.55; }
+
+  /* ── DEMO BAR ─────────────────────────────────────── */
+  .demo-bar {
+    background: #1a1d22;
+    color: #e8e5e0;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12.5px;
+    border-bottom: 1px solid #2e3138;
+  }
+  .demo-bar strong { color: #fff; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .demo-bar .hypothesis { flex: 1; min-width: 240px; color: #b0aaa3; }
+  .demo-bar .hypothesis em { color: #e8e5e0; font-style: normal; font-weight: 500; }
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .toggle-label { font-size: 12px; }
+  .toggle-label span { font-weight: 600; }
+  .toggle {
+    position: relative; display: inline-block; width: 40px; height: 22px; cursor: pointer;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; background: #3d4048; border-radius: 22px; transition: background .2s;
+  }
+  .slider::before {
+    content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: transform .2s;
+  }
+  .toggle input:checked + .slider { background: var(--green); }
+  .toggle input:checked + .slider::before { transform: translateX(18px); }
+  .toggle input:focus-visible + .slider { outline: 2px solid #60a5fa; outline-offset: 2px; }
+
+  /* ── NAV ──────────────────────────────────────────── */
+  .nav {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+    gap: 28px;
+  }
+  .nav-logo {
+    font-weight: 700; font-size: 16px; letter-spacing: -.02em; color: var(--ink);
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+  }
+  .nav-logo .logo-mark {
+    width: 30px; height: 30px; background: var(--green); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.05em;
+  }
+  .nav-links { display: flex; gap: 6px; margin-left: auto; }
+  .nav-links a {
+    font-size: 13.5px; color: var(--ink2); text-decoration: none;
+    padding: 6px 12px; border-radius: var(--radius-sm); transition: background .12s;
+  }
+  .nav-links a:hover { background: var(--paper2); color: var(--ink); }
+
+  /* ── LAYOUT ───────────────────────────────────────── */
+  .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 80px; }
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; }
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; }
+    .trust-panel { order: -1; }
+  }
+
+  /* ── HERO ─────────────────────────────────────────── */
+  .hero {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+  }
+  .avatar {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: linear-gradient(135deg, #334155, #1e293b);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700; color: #e2e8f0; flex-shrink: 0;
+    letter-spacing: -.02em;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px var(--border);
+  }
+  .hero-info { flex: 1; min-width: 0; }
+  .hero-name { font-size: 24px; font-weight: 700; letter-spacing: -.03em; line-height: 1.2; }
+  .hero-title { color: var(--ink2); font-size: 15px; margin-top: 4px; font-weight: 400; }
+  .hero-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .hero-meta span {
+    font-size: 13px; color: var(--ink2); background: var(--paper2);
+    border: 1px solid var(--border); border-radius: 20px;
+    padding: 2px 10px; font-weight: 500;
+  }
+  .hero-meta a { color: inherit; text-decoration: none; }
+  .new-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #fff8e1; color: var(--amber);
+    border: 1px solid #fde68a; border-radius: 20px;
+    padding: 3px 10px; font-size: 12px; font-weight: 600; margin-top: 10px;
+  }
+  .new-pill svg { width: 11px; height: 11px; }
+  .hero-trust-summary {
+    margin-top: 14px;
+    background: var(--paper2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    font-size: 13px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .trust-stat { text-align: center; }
+  .trust-stat-val { font-size: 20px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); }
+  .trust-stat-val.accent { color: var(--green); }
+  .trust-stat-lbl { font-size: 11.5px; color: var(--ink3); margin-top: 2px; line-height: 1.3; }
+  @media (max-width: 540px) {
+    .hero { flex-direction: column; }
+    .hero-trust-summary { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── SECTION CARDS ────────────────────────────────── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink3); margin-bottom: 16px;
+  }
+  .section-h { font-size: 16px; font-weight: 600; letter-spacing: -.02em; margin-bottom: 10px; }
+
+  /* ── HONEST LIMITS ────────────────────────────────── */
+  .limits-box {
+    background: var(--amber-bg);
+    border: 1px solid #e8c98a;
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-size: 13.5px;
+    margin-bottom: 16px;
+  }
+  .limits-box strong { color: var(--amber); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; display: block; margin-bottom: 6px; }
+  .limits-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .limits-list li { display: flex; gap: 8px; color: var(--ink2); }
+  .limits-list li::before { content: '—'; color: var(--amber); flex-shrink: 0; }
+  .limits-instead { margin-top: 10px; font-size: 13px; color: var(--ink2); }
+  .limits-instead strong { color: var(--green); }
+
+  /* ── ABOUT ────────────────────────────────────────── */
+  .about-text { font-size: 14.5px; color: var(--ink2); line-height: 1.65; }
+  .about-text p + p { margin-top: 10px; }
+  blockquote.voice {
+    border-left: 3px solid var(--green);
+    padding: 10px 14px;
+    background: var(--green-bg);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ink2);
+    margin: 14px 0;
+  }
+  blockquote.voice cite { display: block; margin-top: 6px; font-style: normal; font-size: 12px; color: var(--ink3); font-weight: 500; }
+
+  /* ── SERVICES ─────────────────────────────────────── */
+  .services-grid { display: flex; flex-direction: column; gap: 10px; }
+  .service-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    gap: 12px;
+  }
+  .service-name { font-weight: 600; font-size: 14px; }
+  .service-desc { font-size: 13px; color: var(--ink3); margin-top: 2px; }
+  .service-price { font-weight: 700; font-size: 15px; white-space: nowrap; color: var(--ink); }
+  .service-price small { font-weight: 400; font-size: 12px; color: var(--ink3); }
+
+  /* ── PORTFOLIO ────────────────────────────────────── */
+  .portfolio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 680px) { .portfolio-grid { grid-template-columns: repeat(2, 1fr); } }
+  .portfolio-tile {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden; cursor: pointer; transition: box-shadow .15s;
+  }
+  .portfolio-tile:hover { box-shadow: var(--shadow-lg); }
+  .portfolio-tile:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .portfolio-thumb {
+    height: 88px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; letter-spacing: -.03em;
+    color: rgba(255,255,255,.7);
+  }
+  .portfolio-meta { padding: 10px 11px 11px; }
+  .portfolio-title { font-size: 12.5px; font-weight: 600; line-height: 1.3; }
+  .portfolio-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; border-radius: 10px; padding: 2px 7px; margin-top: 5px; font-weight: 600;
+  }
+  .portfolio-badge.confirmed { background: var(--green-bg); color: var(--green); }
+  .portfolio-badge.unconfirmed { background: var(--paper2); color: var(--ink3); }
+  .portfolio-badge svg { width: 10px; height: 10px; flex-shrink: 0; }
+
+  /* ── IMPORTED REPUTATION ──────────────────────────── */
+  .reputation-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .rep-icon {
+    width: 36px; height: 36px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 800; flex-shrink: 0;
+  }
+  .rep-icon.toptal { background: #00b4d8; color: #fff; font-size: 11px; letter-spacing: -.02em; }
+  .rep-icon.li { background: #0a66c2; color: #fff; }
+  .rep-body { flex: 1; }
+  .rep-name { font-weight: 600; font-size: 13.5px; }
+  .rep-stars { color: #f59e0b; letter-spacing: 1px; font-size: 13px; }
+  .rep-detail { font-size: 12.5px; color: var(--ink3); margin-top: 2px; }
+  .rep-honesty { font-size: 12px; color: var(--ink3); margin-top: 12px; font-style: italic; }
+
+  /* ── VOUCHES ──────────────────────────────────────── */
+  .vouch-item {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    overflow: hidden; margin-bottom: 8px;
+  }
+  .vouch-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 14px; cursor: pointer; background: #fff;
+    transition: background .1s;
+  }
+  .vouch-header:hover { background: var(--paper); }
+  .vouch-header:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .vouch-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; flex-shrink: 0;
+  }
+  .vouch-who { flex: 1; min-width: 0; }
+  .vouch-name { font-size: 13.5px; font-weight: 600; }
+  .vouch-role { font-size: 12px; color: var(--ink3); }
+  .vouch-chevron {
+    color: var(--ink3); transition: transform .2s; flex-shrink: 0;
+    font-size: 16px; line-height: 1;
+  }
+  .vouch-item[data-open] .vouch-chevron { transform: rotate(180deg); }
+  .vouch-body {
+    display: none; padding: 0 14px 14px;
+    border-top: 1px solid var(--border); background: var(--paper);
+  }
+  .vouch-item[data-open] .vouch-body { display: block; }
+  .vouch-quote {
+    font-style: italic; font-size: 13.5px; color: var(--ink2);
+    border-left: 3px solid var(--green); padding-left: 12px;
+    margin: 12px 0 10px;
+  }
+  .vouch-verification { font-size: 12px; color: var(--ink3); }
+  .vouch-verification strong { color: var(--ink2); }
+  .vouch-rules {
+    margin-top: 14px; padding: 10px 12px;
+    background: var(--blue-bg); border-radius: var(--radius-sm);
+    font-size: 12px; color: var(--blue);
+  }
+  .vouch-rules strong { display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+
+  /* ── ON-PLATFORM REVIEW ───────────────────────────── */
+  .review-item {
+    padding: 16px; border: 1px solid var(--green); border-radius: var(--radius-sm);
+    background: var(--green-bg);
+  }
+  .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .review-stars { color: #16a34a; font-size: 17px; letter-spacing: 1px; }
+  .review-who { font-size: 13px; color: var(--ink2); }
+  .review-text { font-size: 14px; color: var(--ink); line-height: 1.6; }
+  .review-escrow {
+    margin-top: 10px; font-size: 12px; color: var(--green);
+    display: flex; gap: 5px; align-items: center; font-weight: 500;
+  }
+
+  /* ── RELIABILITY ──────────────────────────────────── */
+  .reliability-disclaimer {
+    background: var(--amber-bg); border: 1px solid #e8c98a;
+    border-radius: var(--radius-sm); padding: 10px 13px;
+    font-size: 12.5px; color: var(--amber); margin-bottom: 14px;
+  }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 480px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+  .stat-cell {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px; text-align: center;
+  }
+  .stat-val { font-size: 20px; font-weight: 700; letter-spacing: -.03em; color: var(--ink); }
+  .stat-val.green { color: var(--green); }
+  .stat-lbl { font-size: 11.5px; color: var(--ink3); margin-top: 2px; line-height: 1.3; }
+  .stat-n { font-size: 10.5px; color: var(--border); margin-top: 1px; font-style: italic; }
+
+  /* ── TRUST PANEL ──────────────────────────────────── */
+  .trust-panel {
+    position: sticky; top: 20px;
+  }
+  .trust-card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px;
+  }
+  .trust-card + .trust-card { margin-top: 14px; }
+
+  /* ring */
+  .ring-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .ring-svg { flex-shrink: 0; }
+  .ring-svg circle { transition: stroke-dashoffset .6s ease; }
+  .ring-text { }
+  .ring-fraction { font-size: 22px; font-weight: 800; letter-spacing: -.04em; }
+  .ring-fraction .total { font-size: 14px; font-weight: 400; color: var(--ink3); }
+  .ring-label { font-size: 12.5px; color: var(--ink2); margin-top: 2px; }
+
+  /* badge list */
+  .badge-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+  .badge-btn {
+    width: 100%; text-align: left; display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: var(--radius-sm); border: none; background: none;
+    cursor: pointer; font-family: inherit; transition: background .12s;
+  }
+  .badge-btn:hover { background: var(--paper); }
+  .badge-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 0; }
+  .badge-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .badge-icon.ok { background: var(--green-bg); color: var(--green); }
+  .badge-icon.pending { background: var(--amber-bg); color: var(--amber); }
+  .badge-icon svg { width: 15px; height: 15px; }
+  .badge-text { flex: 1; min-width: 0; }
+  .badge-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .badge-sub { font-size: 11.5px; color: var(--ink3); }
+  .badge-sub.amber { color: var(--amber); }
+  .badge-arrow { color: var(--ink3); font-size: 14px; }
+
+  /* risk reversal */
+  .risk-box {
+    background: var(--green-bg); border: 1px solid #a7d9c7;
+    border-radius: var(--radius-sm); padding: 14px;
+    margin-bottom: 16px;
+  }
+  .risk-title { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .risk-list { list-style: none; font-size: 13px; color: var(--ink2); display: flex; flex-direction: column; gap: 5px; }
+  .risk-list li { display: flex; gap: 8px; }
+  .risk-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+  .risk-slots { font-size: 12px; color: var(--green); font-weight: 600; margin-top: 10px; }
+
+  /* CTAs */
+  .cta-primary {
+    display: block; width: 100%; background: var(--cta); color: #fff;
+    border: none; border-radius: var(--radius-sm); padding: 13px;
+    font-size: 14.5px; font-weight: 600; text-align: center;
+    cursor: pointer; font-family: inherit; transition: background .15s;
+    margin-bottom: 8px; letter-spacing: -.01em;
+    box-shadow: 0 1px 3px rgba(0,165,80,.2);
+  }
+  .cta-primary:hover { background: var(--cta-hover); }
+  .cta-primary:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  .cta-secondary {
+    display: block; width: 100%; background: #fff; color: var(--ink);
+    border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 11px;
+    font-size: 14px; font-weight: 500; text-align: center;
+    cursor: pointer; font-family: inherit; transition: background .15s;
+    letter-spacing: -.01em;
+  }
+  .cta-secondary:hover { background: var(--paper2); }
+  .cta-secondary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .cta-note { font-size: 11.5px; color: var(--ink3); text-align: center; margin-top: 9px; }
+
+  /* ── BADGE DRAWER ─────────────────────────────────── */
+  .drawer-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.35);
+    z-index: 200; opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; right: 0; top: 0; bottom: 0; width: min(420px, 100vw);
+    background: #fff; z-index: 201;
+    transform: translateX(100%); transition: transform .25s ease;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: -4px 0 24px rgba(0,0,0,.12);
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-header {
+    padding: 18px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .drawer-close {
+    margin-left: auto; background: none; border: none; font-size: 20px;
+    color: var(--ink3); cursor: pointer; padding: 2px 6px; border-radius: 4px;
+    line-height: 1;
+  }
+  .drawer-close:hover { background: var(--paper); color: var(--ink); }
+  .drawer-close:focus-visible { outline: 2px solid var(--blue); }
+  .drawer-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .drawer-badge-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .drawer-badge-icon.ok { background: var(--green-bg); color: var(--green); }
+  .drawer-badge-icon.pending { background: var(--amber-bg); color: var(--amber); }
+  .drawer-badge-icon svg { width: 22px; height: 22px; }
+  .drawer-title { font-size: 16px; font-weight: 700; }
+  .drawer-status { font-size: 12.5px; font-weight: 600; margin-top: 2px; }
+  .drawer-status.ok { color: var(--green); }
+  .drawer-status.pending { color: var(--amber); }
+
+  .receipt-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 9px 0; border-bottom: 1px solid var(--border); gap: 12px;
+    font-size: 13.5px;
+  }
+  .receipt-row:last-child { border-bottom: none; }
+  .receipt-label { color: var(--ink3); flex-shrink: 0; }
+  .receipt-val { color: var(--ink); text-align: right; font-weight: 500; }
+
+  .sim-btn {
+    display: block; width: 100%; background: var(--amber); color: #fff;
+    border: none; border-radius: var(--radius-sm); padding: 12px;
+    font-size: 14px; font-weight: 600; text-align: center; cursor: pointer;
+    font-family: inherit; margin-top: 18px; transition: background .15s;
+  }
+  .sim-btn:hover { background: #7a5115; }
+  .sim-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .sim-note { font-size: 12px; color: var(--ink3); margin-top: 8px; text-align: center; }
+  .sim-success {
+    display: none; text-align: center; padding: 16px;
+    background: var(--green-bg); border-radius: var(--radius-sm); margin-top: 16px;
+    color: var(--green); font-weight: 600;
+  }
+  .sim-success.show { display: block; }
+
+  /* ── BOOKING MODAL ────────────────────────────────── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    z-index: 300; display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background: #fff; border-radius: 12px; width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+    transform: scale(.96); transition: transform .2s;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal-header {
+    padding: 20px 22px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+  }
+  .modal-title { font-size: 17px; font-weight: 700; }
+  .modal-close {
+    margin-left: auto; background: none; border: none; font-size: 20px;
+    color: var(--ink3); cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1;
+  }
+  .modal-close:hover { background: var(--paper); color: var(--ink); }
+  .modal-close:focus-visible { outline: 2px solid var(--blue); }
+  .modal-body { padding: 22px; }
+  .modal-step { display: none; }
+  .modal-step.active { display: block; }
+  .step-indicator {
+    display: flex; gap: 6px; align-items: center; margin-bottom: 20px;
+  }
+  .step-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border); transition: background .2s;
+  }
+  .step-dot.active { background: var(--green); width: 24px; border-radius: 4px; }
+  .step-dot.done { background: var(--green); }
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 12.5px; font-weight: 600; color: var(--ink2); margin-bottom: 6px; display: block; }
+  .form-select, .form-input, .form-textarea {
+    width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 12px; font-size: 14px; font-family: inherit; color: var(--ink);
+    background: #fff; transition: border-color .15s;
+  }
+  .form-select:focus, .form-input:focus, .form-textarea:focus {
+    outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,165,80,.12);
+  }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .milestone-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; background: var(--green-bg); border-radius: var(--radius-sm);
+    font-size: 13.5px; margin-top: 12px;
+  }
+  .milestone-row strong { font-size: 16px; }
+
+  .protection-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .protection-item { display: flex; gap: 12px; align-items: flex-start; }
+  .protection-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .protection-text strong { font-size: 14px; display: block; }
+  .protection-text span { font-size: 13px; color: var(--ink3); }
+
+  .success-icon { font-size: 48px; text-align: center; margin-bottom: 12px; }
+  .success-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 8px; }
+  .success-body { font-size: 14px; color: var(--ink2); text-align: center; line-height: 1.6; }
+  .success-detail {
+    background: var(--paper); border-radius: var(--radius-sm); padding: 14px;
+    margin-top: 16px; font-size: 13px;
+  }
+  .success-detail-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; }
+  .success-detail-row:not(:last-child) { border-bottom: 1px solid var(--border); }
+
+  .modal-footer {
+    padding: 16px 22px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .btn-ghost {
+    background: none; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 18px; font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: inherit; color: var(--ink); transition: background .12s;
+  }
+  .btn-ghost:hover { background: var(--paper); }
+  .btn-ghost:focus-visible { outline: 2px solid var(--blue); }
+  .btn-primary {
+    background: var(--green); color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    font-family: inherit; transition: background .12s;
+  }
+  .btn-primary:hover { background: var(--cta-hover); }
+  .btn-primary:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+  /* ── PORTFOLIO MODAL ──────────────────────────────── */
+  .portfolio-modal-thumb {
+    height: 160px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px; font-weight: 800; color: rgba(255,255,255,.6);
+    margin-bottom: 18px;
+  }
+
+  /* ── FOOTER ───────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--border); padding: 28px 20px; margin-top: 20px;
+    font-size: 12.5px; color: var(--ink3); max-width: 1120px; margin-left: auto; margin-right: auto;
+  }
+  footer strong { color: var(--ink2); display: block; margin-bottom: 6px; }
+  footer p { margin-bottom: 6px; max-width: 780px; }
+
+  /* ── MOBILE STICKY CTA ────────────────────────────── */
+  .mobile-sticky {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-top: 1px solid var(--border);
+    padding: 14px 20px; z-index: 100;
+  }
+  @media (max-width: 960px) { .mobile-sticky { display: block; } }
+  .mobile-sticky .cta-primary { margin: 0; }
+
+  /* ── TRUST-OFF STATE ──────────────────────────────── */
+  body.trust-off .trust-visible { display: none !important; }
+  body.trust-off .trust-off-msg { display: flex !important; }
+  .trust-off-msg {
+    display: none; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px; padding: 24px;
+    border: 1px dashed var(--border); border-radius: var(--radius-sm);
+    color: var(--ink3); font-size: 13.5px; text-align: center;
+  }
+  .trust-off-msg strong { color: var(--ink2); display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0s !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ DEMO BAR ═══════════════════════════════════════════════════════════ -->
+<div class="demo-bar" role="banner" aria-label="Prototype demo controls">
+  <strong>Roster Prototype · M1 v2</strong>
+  <p class="hypothesis">
+    Hypothesis: <em>Showing verified facts + transparent limits instead of hiding zero-review status
+    will increase first-booking intent among buyers considering brand-new providers.</em>
+  </p>
+  <div class="toggle-wrap">
+    <span class="toggle-label">Trust layer: <span id="toggle-state">ON</span></span>
+    <label class="toggle" aria-label="Toggle trust layer on or off">
+      <input type="checkbox" id="trust-toggle" checked>
+      <span class="slider"></span>
+    </label>
+  </div>
+</div>
+
+<!-- ═══ NAV ════════════════════════════════════════════════════════════════ -->
+<nav class="nav" aria-label="Site navigation">
+  <a class="nav-logo" href="#">
+    <span class="logo-mark" aria-hidden="true">R</span>
+    Roster
+  </a>
+  <div class="nav-links" aria-label="Secondary navigation">
+    <a href="#">Browse</a>
+    <a href="#">How it works</a>
+    <a href="#">Sign in</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="layout">
+
+    <!-- ═══ MAIN COLUMN ══════════════════════════════════════════════════ -->
+    <div class="main-col">
+
+      <!-- HERO -->
+      <section class="hero" aria-labelledby="provider-name">
+        <div class="avatar" aria-hidden="true">RA</div>
+        <div class="hero-info">
+          <h1 class="hero-name" id="provider-name">Rowan Adeyemi</h1>
+          <p class="hero-title">Product Designer · Systems &amp; Growth</p>
+          <div class="hero-meta">
+            <span>Austin, TX</span>
+            <span>$95 / hr</span>
+            <span>Available in ~1 week</span>
+          </div>
+          <div class="new-pill">
+            <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M6 4v3M6 8.5v.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            New provider · joined Sep 3, 2026
+          </div>
+          <div class="hero-trust-summary trust-visible">
+            <div class="trust-stat">
+              <div class="trust-stat-val">9 yrs</div>
+              <div class="trust-stat-lbl">Industry experience</div>
+            </div>
+            <div class="trust-stat">
+              <div class="trust-stat-val accent">5/6</div>
+              <div class="trust-stat-lbl">Verifications complete</div>
+            </div>
+            <div class="trust-stat">
+              <div class="trust-stat-val">1</div>
+              <div class="trust-stat-lbl">Job on Roster</div>
+            </div>
+          </div>
+          <div class="trust-off-msg" style="margin-top:12px;">
+            <strong>No reviews yet</strong>
+            <span>This provider joined 4 days ago. No rating available.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- HONEST LIMITS -->
+      <div class="limits-box trust-visible">
+        <strong>What we can't tell you yet</strong>
+        <ul class="limits-list">
+          <li>Whether Rowan is consistently reliable across projects — that takes ~10 engagements to establish</li>
+          <li>How they handle difficult feedback or scope changes under pressure</li>
+          <li>Long-run client retention rate</li>
+        </ul>
+        <p class="limits-instead">
+          <strong>What we verified instead:</strong> identity, employment history, portfolio provenance,
+          business registration, and professional liability insurance — the facts a platform can check
+          before a first booking.
+        </p>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="card">
+        <div class="card-title">About</div>
+        <div class="about-text">
+          <p>I design product systems for growth-stage companies: the dashboards teams actually use, the onboarding
+          flows that convert, the design systems that ship fast instead of sitting in Figma. My background is
+          cross-functional — I spent five years embedded in engineering teams, so I spec in terms of component
+          states and API contracts, not colour chips.</p>
+          <blockquote class="voice trust-visible">
+            "I'm not trying to build a portfolio of vanity work. I want to find two or three companies where
+            I can go deep — understand the users, understand the data, and actually move the metric."
+            <cite>— Rowan Adeyemi, onboarding interview, Aug 28, 2026</cite>
+          </blockquote>
+          <p>Previously: Staff Designer at <strong>Cortex Analytics</strong> (Series B → acquisition, 2019–2024),
+          then Lead Designer at <strong>Meridian Health</strong> (2024–2026). Both employers confirmed on file.</p>
+        </div>
+      </div>
+
+      <!-- SERVICES -->
+      <div class="card">
+        <div class="card-title">Services &amp; pricing</div>
+        <div class="services-grid">
+          <div class="service-row">
+            <div>
+              <div class="service-name">Hourly design work</div>
+              <div class="service-desc">Wireframes, flows, component specs, Figma handoff</div>
+            </div>
+            <div class="service-price">$95 <small>/ hr</small></div>
+          </div>
+          <div class="service-row">
+            <div>
+              <div class="service-name">Two-week trial milestone</div>
+              <div class="service-desc">Scoped deliverable, defined exit criteria, payment in escrow</div>
+            </div>
+            <div class="service-price">$2,400 <small>fixed</small></div>
+          </div>
+          <div class="service-row">
+            <div>
+              <div class="service-name">Design sprint (4 weeks)</div>
+              <div class="service-desc">Discovery → wireframes → prototype → design system handoff</div>
+            </div>
+            <div class="service-price">$6,500 <small>fixed</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PORTFOLIO -->
+      <div class="card">
+        <div class="card-title">Portfolio</div>
+        <div class="portfolio-grid" id="portfolio-grid">
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: Cortex Analytics dashboard"
+               data-project="0">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#1a3040,#2a5570);">CA</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Cortex Analytics — executive dashboard</div>
+              <span class="portfolio-badge confirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client confirmed
+              </span>
+              <span class="portfolio-badge unconfirmed" style="display:none">Unverified</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: Meridian onboarding"
+               data-project="1">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#1e3a2a,#2e5c42);">MH</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Meridian Health — patient onboarding</div>
+              <span class="portfolio-badge confirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client confirmed
+              </span>
+              <span class="portfolio-badge unconfirmed" style="display:none">Unverified</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: design system"
+               data-project="2">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#2e1a40,#4a2a60);">DS</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Cortex — component library (80 components)</div>
+              <span class="portfolio-badge confirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client confirmed
+              </span>
+              <span class="portfolio-badge unconfirmed" style="display:none">Unverified</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: pricing page"
+               data-project="3">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#3a2010,#5c3a1a);">PP</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Undisclosed SaaS — pricing page redesign</div>
+              <span class="portfolio-badge confirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M2 5l2.5 2.5L8 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client confirmed
+              </span>
+              <span class="portfolio-badge unconfirmed" style="display:none">Unverified</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: NDA project A"
+               data-project="4">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#303030,#484848);">NDA</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Confidential fintech — mobile app flows</div>
+              <span class="portfolio-badge unconfirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 2v4M5 7.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client under NDA
+              </span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" tabindex="0" role="button" aria-label="View case study: NDA project B"
+               data-project="5">
+            <div class="portfolio-thumb" style="background: linear-gradient(135deg,#1a2540,#2a3a60);">NDA</div>
+            <div class="portfolio-meta">
+              <div class="portfolio-title">Confidential marketplace — seller dashboard</div>
+              <span class="portfolio-badge unconfirmed trust-visible">
+                <svg viewBox="0 0 10 10" fill="none" aria-hidden="true"><path d="M5 2v4M5 7.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Client under NDA
+              </span>
+            </div>
+          </div>
+
+        </div>
+        <p style="font-size:12.5px;color:var(--ink3);margin-top:12px;" class="trust-visible">
+          Portfolio provenance: Roster contacted each credited client directly to confirm the work is Rowan's.
+          NDA projects: client existence confirmed, work description unverified.
+        </p>
+      </div>
+
+      <!-- IMPORTED REPUTATION -->
+      <div class="card trust-visible">
+        <div class="card-title">Reputation imported from other platforms</div>
+        <div class="reputation-row">
+          <div class="rep-icon toptal">TT</div>
+          <div class="rep-body">
+            <div class="rep-name">Toptal freelancer profile (2021–2026)</div>
+            <div class="rep-stars">★★★★★</div>
+            <div class="rep-detail">4.9 / 5.0 · 23 client reviews · verified account ownership</div>
+          </div>
+        </div>
+        <div class="reputation-row">
+          <div class="rep-icon li">in</div>
+          <div class="rep-body">
+            <div class="rep-name">LinkedIn</div>
+            <div class="rep-detail">11 recommendations · verified account ownership</div>
+          </div>
+        </div>
+        <p class="rep-honesty">
+          We verified Rowan owns these accounts. We did not individually verify the content of each review
+          or recommendation. They are imported as external social proof, not as Roster-verified outcomes.
+        </p>
+      </div>
+
+      <!-- VOUCHES -->
+      <div class="card trust-visible">
+        <div class="card-title">Vouches (4)</div>
+
+        <div class="vouch-item" data-vouch="0">
+          <div class="vouch-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vouch-body-0">
+            <div class="vouch-avatar" style="background:#d9e8f5;color:#1a5fa8;">KL</div>
+            <div class="vouch-who">
+              <div class="vouch-name">Kate Lindqvist</div>
+              <div class="vouch-role">VP of Design, Cortex Analytics · Former direct manager</div>
+            </div>
+            <span class="vouch-chevron" aria-hidden="true">▾</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-0">
+            <blockquote class="vouch-quote">
+              "Rowan is the designer I most often put on ambiguous problems. They ask the right questions first,
+              deliver work that engineers can actually build, and they're the kind of person who makes everyone
+              around them better. I'd hire them again before they finished reading this sentence."
+            </blockquote>
+            <div class="vouch-verification">
+              <strong>Relationship confirmed:</strong> Employment at Cortex 2019–2024 verified against HR records
+              on file. Kate's LinkedIn confirmed as current VP of Design at Cortex. Vouch submitted Sep 4, 2026
+              via verified email link.
+            </div>
+          </div>
+        </div>
+
+        <div class="vouch-item" data-vouch="1">
+          <div class="vouch-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vouch-body-1">
+            <div class="vouch-avatar" style="background:#f0e8fa;color:#6b21a8;">MS</div>
+            <div class="vouch-who">
+              <div class="vouch-name">Marcus Sato</div>
+              <div class="vouch-role">Product Manager, Meridian Health · Client collaborator</div>
+            </div>
+            <span class="vouch-chevron" aria-hidden="true">▾</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-1">
+            <blockquote class="vouch-quote">
+              "We hired designers who made beautiful things. Rowan made things that worked. The onboarding
+              completion rate went from 61% to 84% in one quarter. That's not a coincidence."
+            </blockquote>
+            <div class="vouch-verification">
+              <strong>Relationship confirmed:</strong> Rowan's employment at Meridian 2024–2026 verified.
+              Marcus confirmed as PM via Meridian's public company directory. Vouch submitted Sep 5, 2026.
+            </div>
+          </div>
+        </div>
+
+        <div class="vouch-item" data-vouch="2">
+          <div class="vouch-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vouch-body-2">
+            <div class="vouch-avatar" style="background:#e8f5e8;color:#166534;">JP</div>
+            <div class="vouch-who">
+              <div class="vouch-name">Jordan Pham</div>
+              <div class="vouch-role">Staff Engineer, Cortex Analytics · Engineering partner</div>
+            </div>
+            <span class="vouch-chevron" aria-hidden="true">▾</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-2">
+            <blockquote class="vouch-quote">
+              "Rowan specs in component states, not vibes. When they hand off a design, you know what every
+              edge case looks like and what the API expects. I have never had to go back and ask for a missing
+              state. That is a genuinely rare thing."
+            </blockquote>
+            <div class="vouch-verification">
+              <strong>Relationship confirmed:</strong> Jordan's GitHub and Cortex tenure verified against
+              public commit history and LinkedIn. Submitted Sep 4, 2026.
+            </div>
+          </div>
+        </div>
+
+        <div class="vouch-item" data-vouch="3">
+          <div class="vouch-header" role="button" tabindex="0" aria-expanded="false" aria-controls="vouch-body-3">
+            <div class="vouch-avatar" style="background:#fef3e2;color:#92400e;">AB</div>
+            <div class="vouch-who">
+              <div class="vouch-name">Amara Bello</div>
+              <div class="vouch-role">Freelance designer · Subcontracting colleague</div>
+            </div>
+            <span class="vouch-chevron" aria-hidden="true">▾</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-3">
+            <blockquote class="vouch-quote">
+              "I've subcontracted Rowan on three projects when I've been at capacity. They deliver clean,
+              they communicate early, and they never made me look bad in front of a client. That's the
+              only criteria I care about when I refer someone."
+            </blockquote>
+            <div class="vouch-verification">
+              <strong>Relationship confirmed:</strong> Amara's Roster profile and freelance identity verified.
+              Business relationship confirmed via contract records provided by both parties. Submitted Sep 5, 2026.
+            </div>
+          </div>
+        </div>
+
+        <div class="vouch-rules">
+          <strong>How vouches work on Roster</strong>
+          Vouchers must verify their identity and relationship before submitting.
+          Vouches that are incentivized, traded, or solicited in exchange for anything are removed.
+          Providers cannot edit or delete vouches — only the voucher can.
+        </div>
+      </div>
+
+      <!-- ON-PLATFORM REVIEW -->
+      <div class="card trust-visible">
+        <div class="card-title">On Roster (1 engagement)</div>
+        <div class="review-item">
+          <div class="review-header">
+            <span class="review-stars">★★★★★</span>
+            <span class="review-who">Priya Nair · Founder, Fable Studio · Sep 5, 2026</span>
+          </div>
+          <div class="review-text">
+            "We hired Rowan for a two-week trial milestone: audit our checkout flow and deliver a redesigned
+            prototype with annotations. They delivered in 11 days, gave us a problem framing we hadn't considered,
+            and stayed within the agreed scope. We've already extended to a full sprint. Exactly what you want
+            from a first engagement."
+          </div>
+          <div class="review-escrow">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+              <rect x="1" y="5" width="11" height="7" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M4 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            Paid through Roster: $2,400 · escrow released Sep 5, 2026
+          </div>
+        </div>
+      </div>
+
+      <!-- RELIABILITY -->
+      <div class="card trust-visible">
+        <div class="card-title">Reliability stats</div>
+        <div class="reliability-disclaimer">
+          Based on 1 engagement — too little to prove consistency. Shown at full resolution so
+          you can judge for yourself.
+        </div>
+        <div class="stats-grid">
+          <div class="stat-cell">
+            <div class="stat-val green">14 min</div>
+            <div class="stat-lbl">Median first reply</div>
+            <div class="stat-n">n = 9 messages</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val green">9 / 9</div>
+            <div class="stat-lbl">Messages answered</div>
+            <div class="stat-n">n = 1 engagement</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val green">1 / 1</div>
+            <div class="stat-lbl">Milestones on time</div>
+            <div class="stat-n">n = 1 engagement</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val green">$0</div>
+            <div class="stat-lbl">Scope overruns</div>
+            <div class="stat-n">$2,400 quoted, $2,400 paid</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val green">0</div>
+            <div class="stat-lbl">Disputes filed</div>
+            <div class="stat-n">n = 1 engagement</div>
+          </div>
+          <div class="stat-cell">
+            <div class="stat-val green">11 days</div>
+            <div class="stat-lbl">Delivered (of 14 est.)</div>
+            <div class="stat-n">n = 1 engagement</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-col -->
+
+    <!-- ═══ TRUST PANEL ════════════════════════════════════════════════ -->
+    <aside class="trust-panel" aria-label="Trust and verification panel">
+
+      <!-- Trust-off fallback -->
+      <div class="trust-off-msg card" style="margin-bottom:16px;">
+        <strong>No verification shown</strong>
+        Toggle the trust layer on to see what Roster verified about this provider.
+      </div>
+
+      <!-- Verification ring card -->
+      <div class="trust-card trust-visible">
+        <div class="ring-wrap">
+          <svg class="ring-svg" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="26" fill="none" stroke="#e2e8f0" stroke-width="6"/>
+            <circle id="ring-progress" cx="32" cy="32" r="26" fill="none"
+              stroke="#00a550" stroke-width="6"
+              stroke-dasharray="163.4"
+              stroke-dashoffset="27.2"
+              stroke-linecap="round"
+              transform="rotate(-90 32 32)"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-fraction" id="ring-fraction">5<span class="total"> / 6</span></div>
+            <div class="ring-label">Verifications complete</div>
+          </div>
+        </div>
+
+        <ul class="badge-list" aria-label="Verification badges">
+
+          <li>
+            <button class="badge-btn" data-badge="id"
+              aria-label="View Government ID verification details">
+              <div class="badge-icon ok">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <rect x="1" y="3.5" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                  <circle cx="5.5" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M9 6.5h3M9 8.5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Government ID</div>
+                <div class="badge-sub">Liveness match · TX driver's licence</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="badge-btn" data-badge="employment"
+              aria-label="View Employment history verification details">
+              <div class="badge-icon ok">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <rect x="2" y="5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                  <path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                  <path d="M5 9h6M5 11.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Employment history</div>
+                <div class="badge-sub">2 of 2 employers confirmed</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="badge-btn" data-badge="portfolio"
+              aria-label="View Portfolio provenance verification details">
+              <div class="badge-icon ok">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+                  <path d="M1.5 6h13" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M5 9.5l2 2 4-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Portfolio provenance</div>
+                <div class="badge-sub">4 of 6 pieces confirmed</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="badge-btn" data-badge="business"
+              aria-label="View Business and tax registration verification details">
+              <div class="badge-icon ok">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M3 13V7L8 3l5 4v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <rect x="6" y="9" width="4" height="4" rx=".5" stroke="currentColor" stroke-width="1.2"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Business &amp; tax registration</div>
+                <div class="badge-sub">LLC · TX SoS · W-9 on file</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="badge-btn" data-badge="insurance"
+              aria-label="View Professional liability insurance verification details">
+              <div class="badge-icon ok">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M8 2L3 4.5V8c0 3 2.5 5 5 6 2.5-1 5-3 5-6V4.5L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                  <path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Professional liability</div>
+                <div class="badge-sub">$1M E&amp;O · expires Feb 14, 2027</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+          <li>
+            <button class="badge-btn" data-badge="payout"
+              aria-label="View Payout account verification details — pending">
+              <div class="badge-icon pending">
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/>
+                  <path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="badge-text">
+                <div class="badge-name">Payout account</div>
+                <div class="badge-sub amber">Pending · micro-deposit in transit</div>
+              </div>
+              <span class="badge-arrow" aria-hidden="true">›</span>
+            </button>
+          </li>
+
+        </ul>
+      </div>
+
+      <!-- Risk reversal -->
+      <div class="trust-card trust-visible">
+        <div class="risk-box">
+          <div class="risk-title">Founding-client guarantee</div>
+          <ul class="risk-list">
+            <li>Payment held in escrow — released only when you accept</li>
+            <li>Not satisfied? Pay nothing, full refund</li>
+            <li>We place a replacement within 3 business days, up to $5,000</li>
+          </ul>
+          <div class="risk-slots">2 of 5 founding-client slots remaining</div>
+        </div>
+        <button class="cta-primary" id="open-booking">Start with a paid trial milestone</button>
+        <button class="cta-secondary">Request intro call</button>
+        <p class="cta-note">No payment until you approve the milestone scope</p>
+      </div>
+
+    </aside>
+
+  </div><!-- /layout -->
+</main>
+
+<!-- Mobile sticky CTA -->
+<div class="mobile-sticky" aria-hidden="true">
+  <button class="cta-primary" onclick="document.getElementById('open-booking').click()">
+    Start with a paid trial milestone
+  </button>
+</div>
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
+<footer>
+  <strong>How Roster verifies</strong>
+  <p>Government ID: liveness video + document scan matched against state DMV records.
+  Employment: direct outreach to HR contacts at named employers, not self-reported.
+  Portfolio provenance: direct email to credited client contacts with a confirmation link.
+  Business registration: API query against TX Secretary of State database.
+  Insurance: COI reviewed and expiry tracked; we email providers 60 days before lapse.
+  Payout account: micro-deposit verification to confirm account ownership.</p>
+  <p style="margin-top:10px;color:#b0aaa3;">
+    This is a product prototype. Rowan Adeyemi, the companies, quotes, and metrics shown are
+    illustrative sample content created for a Product School AI Vibe Coding assignment (Module 1, Sep 2026).
+  </p>
+</footer>
+
+<!-- ═══ BADGE DRAWER ══════════════════════════════════════════════════════ -->
+<div class="drawer-overlay" id="drawer-overlay" aria-hidden="true"></div>
+<div class="drawer" id="badge-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" aria-hidden="true">
+  <div class="drawer-header">
+    <div class="drawer-badge-icon ok" id="drawer-icon">
+      <svg viewBox="0 0 22 22" fill="none" aria-hidden="true" id="drawer-icon-svg">
+        <path d="M4 11l4 4 9-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="drawer-title" id="drawer-title">Badge</div>
+      <div class="drawer-status ok" id="drawer-status">Verified</div>
+    </div>
+    <button class="drawer-close" id="drawer-close" aria-label="Close verification details">✕</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<!-- ═══ BOOKING MODAL ════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Start with a trial milestone</div>
+      <button class="modal-close" id="modal-close" aria-label="Close booking">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-indicator" aria-label="Step 1 of 3: Scope and milestone">
+        <div class="step-dot active" id="dot-0"></div>
+        <div class="step-dot" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="modal-step active" id="modal-step-0">
+        <div class="form-group">
+          <label class="form-label" for="project-type">What do you need help with?</label>
+          <select class="form-select" id="project-type">
+            <option>UX audit + redesign</option>
+            <option>New feature design</option>
+            <option>Design system work</option>
+            <option>End-to-end product sprint</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="scope-note">Brief scope note (optional)</label>
+          <textarea class="form-textarea" id="scope-note" placeholder="e.g. 'Redesign our checkout flow — we're seeing 40% drop-off at payment entry'"></textarea>
+        </div>
+        <div class="milestone-row">
+          <span>Two-week trial milestone</span>
+          <strong>$2,400</strong>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="modal-step" id="modal-step-1">
+        <ul class="protection-list">
+          <li class="protection-item">
+            <span class="protection-icon">🔒</span>
+            <div class="protection-text">
+              <strong>Payment in escrow</strong>
+              <span>Your $2,400 is held by Roster and only released when you accept the milestone deliverable.</span>
+            </div>
+          </li>
+          <li class="protection-item">
+            <span class="protection-icon">↩</span>
+            <div class="protection-text">
+              <strong>Not satisfied? Pay nothing.</strong>
+              <span>If you don't accept the milestone within 14 days of delivery, the full amount is refunded.</span>
+            </div>
+          </li>
+          <li class="protection-item">
+            <span class="protection-icon">🔄</span>
+            <div class="protection-text">
+              <strong>Free replacement within 3 business days</strong>
+              <span>As a founding client, if this engagement doesn't work out, Roster will place a vetted replacement at no extra cost, up to $5,000 in value.</span>
+            </div>
+          </li>
+          <li class="protection-item">
+            <span class="protection-icon">📋</span>
+            <div class="protection-text">
+              <strong>Scope locked before payment</strong>
+              <span>Rowan will send a written scope confirmation. Payment only initiates after you counter-sign.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="modal-step" id="modal-step-2">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Request sent to Rowan</div>
+        <div class="success-body">
+          Rowan typically responds within a few hours. They'll send you a written scope
+          confirmation before any payment is charged.
+        </div>
+        <div class="success-detail">
+          <div class="success-detail-row"><span>Provider</span><strong>Rowan Adeyemi</strong></div>
+          <div class="success-detail-row"><span>Milestone</span><strong>Two-week trial</strong></div>
+          <div class="success-detail-row"><span>Amount (in escrow)</span><strong>$2,400</strong></div>
+          <div class="success-detail-row"><span>Guarantee</span><strong>Full refund if not accepted</strong></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="modal-footer">
+      <button class="btn-ghost" id="modal-back" style="display:none">Back</button>
+      <button class="btn-primary" id="modal-next">Next: Review protections →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PORTFOLIO MODAL ═══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="port-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="port-modal-title" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title" id="port-modal-title">Case study</div>
+      <button class="modal-close" id="port-close" aria-label="Close case study">✕</button>
+    </div>
+    <div class="modal-body" id="port-modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const BADGES = {
+  id: {
+    title: 'Government ID',
+    status: 'ok',
+    statusLabel: 'Verified · Sep 3, 2026',
+    receipt: [
+      ['Method', 'Liveness video + document scan'],
+      ['Document', 'Texas driver\'s licence'],
+      ['Cross-check', 'TX DMV identity database'],
+      ['Result', 'Face match: ✓  Document authentic: ✓'],
+      ['Verified by', 'Roster Identity (Persona Inc. infrastructure)'],
+      ['Date', 'Sep 3, 2026 at 11:14 AM CT'],
+    ],
+    note: null,
+  },
+  employment: {
+    title: 'Employment history',
+    status: 'ok',
+    statusLabel: 'Verified · Sep 3, 2026',
+    receipt: [
+      ['Employer 1', 'Cortex Analytics (2019–2024)'],
+      ['Confirmed by', 'HR Director — direct email to hr@cortexanalytics.io'],
+      ['Dates confirmed', 'Aug 2019 – Nov 2024 · Staff Designer'],
+      ['Employer 2', 'Meridian Health (2024–2026)'],
+      ['Confirmed by', 'HR Partner — direct email to talent@meridianhealth.com'],
+      ['Dates confirmed', 'Jan 2024 – Aug 2026 · Lead Designer'],
+      ['Verification date', 'Sep 3, 2026'],
+    ],
+    note: null,
+  },
+  portfolio: {
+    title: 'Portfolio provenance',
+    status: 'ok',
+    statusLabel: 'Partially verified · 4 of 6',
+    receipt: [
+      ['Method', 'Direct email to credited client contacts'],
+      ['Piece 1 — Cortex dashboard', 'Confirmed by Kate Lindqvist, VP Design'],
+      ['Piece 2 — Meridian onboarding', 'Confirmed by Marcus Sato, PM'],
+      ['Piece 3 — Cortex design system', 'Confirmed by Jordan Pham, Staff Eng.'],
+      ['Piece 4 — Undisclosed SaaS', 'Confirmed by client (name withheld by request)'],
+      ['Piece 5 — Fintech mobile', 'Client under NDA — existence confirmed, work unverified'],
+      ['Piece 6 — Marketplace', 'Client under NDA — existence confirmed, work unverified'],
+      ['Verified', 'Sep 4, 2026'],
+    ],
+    note: null,
+  },
+  business: {
+    title: 'Business & tax registration',
+    status: 'ok',
+    statusLabel: 'Verified · Sep 3, 2026',
+    receipt: [
+      ['Entity name', 'Adeyemi Design LLC'],
+      ['State', 'Texas'],
+      ['Registration number', 'TX-LLC-2021-48821'],
+      ['Source', 'TX Secretary of State public records API'],
+      ['Status', 'Active · registered Mar 12, 2021'],
+      ['Tax form', 'W-9 on file · EIN verified'],
+      ['Verified', 'Sep 3, 2026'],
+    ],
+    note: null,
+  },
+  insurance: {
+    title: 'Professional liability insurance',
+    status: 'ok',
+    statusLabel: 'Verified · expires Feb 14, 2027',
+    receipt: [
+      ['Policy type', 'Errors & Omissions (E&O)'],
+      ['Coverage', '$1,000,000 per occurrence'],
+      ['Insurer', 'Hiscox USA'],
+      ['Policy number', 'HIS-2026-EOX-047291'],
+      ['Verified via', 'Certificate of Insurance (COI) review'],
+      ['Effective', 'Feb 15, 2026'],
+      ['Expires', 'Feb 14, 2027'],
+      ['Auto-reminder', '60-day expiry alert configured'],
+    ],
+    note: null,
+  },
+  payout: {
+    title: 'Payout account',
+    status: 'pending',
+    statusLabel: 'Pending · micro-deposit in transit',
+    receipt: [
+      ['Method', 'Micro-deposit verification'],
+      ['Account type', 'Business checking — Chase Bank'],
+      ['Micro-deposit sent', 'Sep 6, 2026 at 9:42 AM CT'],
+      ['Expected to clear', 'Sep 7–8, 2026 (1–2 business days)'],
+      ['Status', '⏳ Awaiting Rowan\'s confirmation of deposit amount'],
+    ],
+    note: 'payout',
+  },
+};
+
+const PROJECTS = [
+  {
+    title: 'Cortex Analytics — Executive Dashboard',
+    color: 'linear-gradient(135deg,#1a3040,#2a5570)',
+    initials: 'CA',
+    status: 'confirmed',
+    client: 'Confirmed by Kate Lindqvist, VP of Design, Cortex Analytics',
+    year: '2022',
+    role: 'Lead designer (Staff Designer, Cortex)',
+    outcome: 'Reduced dashboard time-to-insight from 4.2 min to 47 sec (user testing, n=18). Adopted by 94% of enterprise accounts within 60 days of launch.',
+    tools: 'Figma, Storybook, React (worked alongside eng team)',
+  },
+  {
+    title: 'Meridian Health — Patient Onboarding',
+    color: 'linear-gradient(135deg,#1e3a2a,#2e5c42)',
+    initials: 'MH',
+    status: 'confirmed',
+    client: 'Confirmed by Marcus Sato, PM, Meridian Health',
+    year: '2024',
+    role: 'Lead designer (Lead Designer, Meridian)',
+    outcome: 'Onboarding completion rate: 61% → 84% in Q1 2025. Support ticket volume for onboarding issues dropped 38%.',
+    tools: 'Figma, FullStory, Maze (usability testing)',
+  },
+  {
+    title: 'Cortex — Component Library (80 components)',
+    color: 'linear-gradient(135deg,#2e1a40,#4a2a60)',
+    initials: 'DS',
+    status: 'confirmed',
+    client: 'Confirmed by Jordan Pham, Staff Engineer, Cortex',
+    year: '2021–2022',
+    role: 'Design lead + tokens architecture',
+    outcome: 'Reduced new feature design-to-handoff time by 60%. Used across 4 product teams, 2 years with no breaking redesign.',
+    tools: 'Figma (components + tokens), Storybook, Chromatic',
+  },
+  {
+    title: 'Undisclosed SaaS — Pricing Page Redesign',
+    color: 'linear-gradient(135deg,#3a2010,#5c3a1a)',
+    initials: 'PP',
+    status: 'confirmed',
+    client: 'Confirmed by client (name withheld by request)',
+    year: '2023',
+    role: 'Freelance UX lead',
+    outcome: 'Trial conversion rate increased 22% over 6-week test. Client name withheld at their request — confirmation on file with Roster.',
+    tools: 'Figma, Optimizely (A/B test), Hotjar',
+  },
+  {
+    title: 'Confidential Fintech — Mobile App Flows',
+    color: 'linear-gradient(135deg,#303030,#484848)',
+    initials: 'NDA',
+    status: 'nda',
+    client: 'Client under NDA — existence confirmed, work unverified',
+    year: '2025',
+    role: 'Contract designer',
+    outcome: 'Work description and outcome unverifiable under NDA. Roster confirmed the client company exists and that Rowan was engaged.',
+    tools: 'Cannot disclose',
+  },
+  {
+    title: 'Confidential Marketplace — Seller Dashboard',
+    color: 'linear-gradient(135deg,#1a2540,#2a3a60)',
+    initials: 'NDA',
+    status: 'nda',
+    client: 'Client under NDA — existence confirmed, work unverified',
+    year: '2025',
+    role: 'Contract designer',
+    outcome: 'Work description and outcome unverifiable under NDA. Roster confirmed the client company exists and that Rowan was engaged.',
+    tools: 'Cannot disclose',
+  },
+];
+
+// ── TRUST TOGGLE ──────────────────────────────────────────────────────────
+const trustToggle = document.getElementById('trust-toggle');
+const toggleState = document.getElementById('toggle-state');
+trustToggle.addEventListener('change', () => {
+  const on = trustToggle.checked;
+  document.body.classList.toggle('trust-off', !on);
+  toggleState.textContent = on ? 'ON' : 'OFF';
+});
+
+// ── BADGE DRAWER ──────────────────────────────────────────────────────────
+let drawerTrigger = null;
+const drawerOverlay = document.getElementById('drawer-overlay');
+const drawer = document.getElementById('badge-drawer');
+const drawerClose = document.getElementById('drawer-close');
+let payoutSimulated = false;
+
+function openDrawer(badgeKey, triggerEl) {
+  const b = BADGES[badgeKey];
+  drawerTrigger = triggerEl;
+
+  const iconEl = document.getElementById('drawer-icon');
+  iconEl.className = 'drawer-badge-icon ' + b.status;
+
+  document.getElementById('drawer-title').textContent = b.title;
+  const statusEl = document.getElementById('drawer-status');
+  statusEl.textContent = b.status === 'ok' ? b.statusLabel : b.statusLabel;
+  statusEl.className = 'drawer-status ' + b.status;
+
+  let html = '<div>';
+  b.receipt.forEach(([label, val]) => {
+    html += `<div class="receipt-row"><span class="receipt-label">${label}</span><span class="receipt-val">${val}</span></div>`;
+  });
+  html += '</div>';
+
+  if (b.note === 'payout' && !payoutSimulated) {
+    html += `
+      <button class="sim-btn" id="sim-payout-btn">Simulate: verify deposit amount</button>
+      <p class="sim-note">Demo only — shows how verification completes</p>
+      <div class="sim-success" id="sim-success">
+        ✅ Payout account verified! Rowan can now receive payments.
+      </div>`;
+  } else if (b.note === 'payout' && payoutSimulated) {
+    html += `<div class="sim-success show">✅ Payout account already verified in this session.</div>`;
+  }
+
+  document.getElementById('drawer-body').innerHTML = html;
+
+  if (b.note === 'payout' && !payoutSimulated) {
+    document.getElementById('sim-payout-btn')?.addEventListener('click', simulatePayout);
+  }
+
+  drawer.removeAttribute('aria-hidden');
+  drawer.classList.add('open');
+  drawerOverlay.removeAttribute('aria-hidden');
+  drawerOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  drawerClose.focus();
+}
+
+function simulatePayout() {
+  payoutSimulated = true;
+  document.getElementById('sim-payout-btn').remove();
+  document.getElementById('sim-success').classList.add('show');
+
+  // Update badge UI
+  const payoutBtn = document.querySelector('[data-badge="payout"]');
+  const iconDiv = payoutBtn.querySelector('.badge-icon');
+  iconDiv.className = 'badge-icon ok';
+  iconDiv.querySelector('svg').innerHTML = '<path d="M4 11l4 4 9-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+  payoutBtn.querySelector('.badge-name').textContent = 'Payout account';
+  payoutBtn.querySelector('.badge-sub').textContent = 'Verified · Sep 7, 2026';
+  payoutBtn.querySelector('.badge-sub').className = 'badge-sub';
+
+  // Update ring: 5/6 → 6/6
+  const progress = document.getElementById('ring-progress');
+  progress.style.strokeDashoffset = '0';
+  document.getElementById('ring-fraction').innerHTML = '6<span class="total"> / 6</span>';
+  document.querySelector('.ring-label').textContent = 'All verifications complete';
+
+  // Update hero summary
+  const heroAccent = document.querySelector('.trust-stat-val.accent');
+  if (heroAccent) heroAccent.textContent = '6/6';
+
+  // Update drawer status
+  document.getElementById('drawer-status').textContent = 'Verified · Sep 7, 2026';
+  document.getElementById('drawer-status').className = 'drawer-status ok';
+  document.getElementById('drawer-icon').className = 'drawer-badge-icon ok';
+}
+
+function closeDrawer() {
+  drawer.setAttribute('aria-hidden', 'true');
+  drawer.classList.remove('open');
+  drawerOverlay.setAttribute('aria-hidden', 'true');
+  drawerOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  drawerTrigger?.focus();
+  drawerTrigger = null;
+}
+
+document.querySelectorAll('[data-badge]').forEach(btn => {
+  btn.addEventListener('click', () => openDrawer(btn.dataset.badge, btn));
+});
+drawerClose.addEventListener('click', closeDrawer);
+drawerOverlay.addEventListener('click', closeDrawer);
+
+// ── VOUCH EXPANDERS ───────────────────────────────────────────────────────
+document.querySelectorAll('.vouch-header').forEach(header => {
+  header.addEventListener('click', () => toggleVouch(header));
+  header.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVouch(header); } });
+});
+function toggleVouch(header) {
+  const item = header.closest('.vouch-item');
+  const open = item.hasAttribute('data-open');
+  if (open) {
+    item.removeAttribute('data-open');
+    header.setAttribute('aria-expanded', 'false');
+  } else {
+    item.setAttribute('data-open', '');
+    header.setAttribute('aria-expanded', 'true');
+  }
+}
+
+// ── PORTFOLIO ─────────────────────────────────────────────────────────────
+let portTrigger = null;
+const portOverlay = document.getElementById('port-overlay');
+const portClose = document.getElementById('port-close');
+
+function openPortfolio(idx, triggerEl) {
+  const p = PROJECTS[idx];
+  portTrigger = triggerEl;
+  document.getElementById('port-modal-title').textContent = p.title;
+
+  const badgeCls = p.status === 'confirmed' ? 'confirmed' : 'unconfirmed';
+  const badgeLabel = p.status === 'confirmed' ? '✓ Client confirmed' : '⚠ Client under NDA';
+
+  let html = `
+    <div class="portfolio-modal-thumb" style="background:${p.color}">${p.initials}</div>
+    <div style="margin-bottom:12px;">
+      <span class="portfolio-badge ${badgeCls}" style="font-size:12.5px;padding:3px 10px;">${badgeLabel}</span>
+    </div>
+    <div style="font-size:13px;color:var(--ink3);margin-bottom:16px;">
+      <strong style="color:var(--ink2);">${p.client}</strong>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div class="stat-cell"><div class="stat-val" style="font-size:15px;">${p.year}</div><div class="stat-lbl">Year</div></div>
+      <div class="stat-cell"><div class="stat-val" style="font-size:13px;font-weight:600;">${p.tools}</div><div class="stat-lbl">Tools</div></div>
+    </div>
+    <div style="font-size:13.5px;margin-bottom:8px;"><strong>Role:</strong> ${p.role}</div>
+    <div style="font-size:13.5px;color:var(--ink2);line-height:1.6;">${p.outcome}</div>
+  `;
+
+  document.getElementById('port-modal-body').innerHTML = html;
+  portOverlay.removeAttribute('aria-hidden');
+  portOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  portClose.focus();
+}
+
+function closePortfolio() {
+  portOverlay.setAttribute('aria-hidden', 'true');
+  portOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  portTrigger?.focus();
+  portTrigger = null;
+}
+
+document.querySelectorAll('[data-project]').forEach(tile => {
+  tile.addEventListener('click', () => openPortfolio(+tile.dataset.project, tile));
+  tile.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openPortfolio(+tile.dataset.project, tile); } });
+});
+portClose.addEventListener('click', closePortfolio);
+portOverlay.addEventListener('click', e => { if (e.target === portOverlay) closePortfolio(); });
+
+// ── BOOKING MODAL ─────────────────────────────────────────────────────────
+let bookingStep = 0;
+let bookingTrigger = null;
+const modalOverlay = document.getElementById('modal-overlay');
+const modalClose = document.getElementById('modal-close');
+const modalNext = document.getElementById('modal-next');
+const modalBack = document.getElementById('modal-back');
+
+function openBooking(triggerEl) {
+  bookingTrigger = triggerEl;
+  bookingStep = 0;
+  updateBookingStep();
+  modalOverlay.removeAttribute('aria-hidden');
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  modalClose.focus();
+}
+
+function closeBooking() {
+  modalOverlay.setAttribute('aria-hidden', 'true');
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+  bookingTrigger?.focus();
+  bookingTrigger = null;
+  bookingStep = 0;
+  updateBookingStep();
+}
+
+function updateBookingStep() {
+  document.querySelectorAll('.modal-step').forEach((s, i) => {
+    s.classList.toggle('active', i === bookingStep);
+  });
+  [0,1,2].forEach(i => {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.toggle('active', i === bookingStep);
+    dot.classList.toggle('done', i < bookingStep);
+  });
+
+  const labels = ['Next: Review protections →', 'Confirm & send request', 'Close'];
+  modalNext.textContent = labels[bookingStep];
+  modalBack.style.display = bookingStep > 0 && bookingStep < 2 ? 'inline-block' : 'none';
+
+  const titles = ['Start with a trial milestone', 'Your protections', 'Request sent'];
+  document.getElementById('modal-title').textContent = titles[bookingStep];
+}
+
+document.getElementById('open-booking').addEventListener('click', () => openBooking(document.getElementById('open-booking')));
+modalClose.addEventListener('click', closeBooking);
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeBooking(); });
+modalNext.addEventListener('click', () => {
+  if (bookingStep < 2) { bookingStep++; updateBookingStep(); }
+  else closeBooking();
+});
+modalBack.addEventListener('click', () => {
+  if (bookingStep > 0) { bookingStep--; updateBookingStep(); }
+});
+
+// ── GLOBAL ESC ────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (drawer.classList.contains('open')) closeDrawer();
+  else if (portOverlay.classList.contains('open')) closePortfolio();
+  else if (modalOverlay.classList.contains('open')) closeBooking();
+});
+</script>
+</body>
+</html>
