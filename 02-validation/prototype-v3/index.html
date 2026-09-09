@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roster · Lab 3 — Marketplace Trust</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper:       #ffffff;
+      --paper2:      #f1f5f9;
+      --ink:         #0f172a;
+      --ink2:        #475569;
+      --ink3:        #94a3b8;
+      --border:      #e2e8f0;
+      --green:       #00a550;
+      --green-bg:    #e6f7ee;
+      --amber:       #b45309;
+      --amber-bg:    #fffbeb;
+      --amber-bdr:   #fde68a;
+      --red:         #dc2626;
+      --red-bg:      #fef2f2;
+      --blue:        #2563eb;
+      --blue-bg:     #eff6ff;
+      --cta:         #00a550;
+      --cta-hover:   #008f44;
+      --radius:      10px;
+      --radius-sm:   8px;
+      --shadow:      0 1px 3px rgba(0,0,0,.06), 0 0 0 1px rgba(0,0,0,.04);
+      --shadow-lg:   0 8px 32px rgba(0,0,0,.10), 0 0 0 1px rgba(0,0,0,.04);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--ink);
+      background: var(--paper2);
+    }
+
+    /* ── Trust Toggle Mechanism ─────────────────────────────── */
+    .trust-off-msg  { display: none; }
+    body.trust-off .trust-visible  { display: none !important; }
+    body.trust-off .trust-off-msg  { display: flex !important; }
+
+    /* ── Demo Bar ───────────────────────────────────────────── */
+    .demo-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: #1a1d22; color: #fff;
+      padding: 9px 20px;
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .demo-lab   { font-size: 11px; font-weight: 700; letter-spacing: .07em; color: #64748b; text-transform: uppercase; }
+    .demo-hyp   { font-size: 13px; font-weight: 500; color: #f1f5f9; flex: 1; }
+    .demo-metric {
+      font-size: 12px; font-weight: 600;
+      background: rgba(0,165,80,.15); color: #4ade80;
+      border: 1px solid rgba(0,165,80,.3); border-radius: 20px; padding: 2px 10px;
+    }
+    .demo-right { display: flex; align-items: center; gap: 10px; }
+    .ks-label   { font-size: 11px; color: #64748b; white-space: nowrap; }
+
+    .toggle { position: relative; width: 40px; height: 22px; cursor: pointer; }
+    .toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: #374151; border-radius: 11px; transition: background .2s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 16px; height: 16px; left: 3px; top: 3px;
+      background: #6b7280; border-radius: 50%; transition: transform .2s, background .2s;
+    }
+    .toggle input:checked + .toggle-slider { background: rgba(0,165,80,.4); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); background: #00a550; }
+
+    /* ── Kill-switch OFF banner ─────────────────────────────── */
+    .trust-off-banner {
+      display: none;
+      background: #1e1208; color: #fde68a;
+      font-size: 13px; padding: 9px 20px;
+      align-items: center; justify-content: center; gap: 8px;
+      border-bottom: 1px solid #92400e;
+    }
+    body.trust-off .trust-off-banner { display: flex; }
+
+    /* ── Nav ────────────────────────────────────────────────── */
+    nav {
+      background: var(--paper); border-bottom: 1px solid var(--border);
+      padding: 0 20px; display: flex; align-items: center; height: 56px; gap: 28px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 700; font-size: 17px; color: var(--ink); text-decoration: none;
+    }
+    .logo-mark {
+      width: 28px; height: 28px; background: var(--green); color: #fff;
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 700;
+    }
+    .nav-links { display: flex; gap: 2px; list-style: none; }
+    .nav-links a {
+      font-size: 14px; color: var(--ink2); text-decoration: none;
+      padding: 6px 12px; border-radius: var(--radius-sm); transition: background .15s;
+    }
+    .nav-links a:hover { background: var(--paper2); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    /* ── Buttons ────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 8px 18px; border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+      transition: background .15s, transform .1s; text-decoration: none; font-family: inherit;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--cta); color: #fff; box-shadow: 0 1px 3px rgba(0,165,80,.2); }
+    .btn-primary:hover { background: var(--cta-hover); }
+    .btn-secondary { background: var(--paper); color: var(--ink); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--paper2); }
+    .btn-full { width: 100%; padding: 12px 18px; }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    .main { max-width: 1120px; margin: 0 auto; padding: 32px 20px 80px; }
+
+    /* ── Cards ──────────────────────────────────────────────── */
+    .card {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow);
+    }
+    .card + .card { margin-top: 16px; }
+    .card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--ink3); margin-bottom: 16px;
+    }
+
+    /* ── Pills ──────────────────────────────────────────────── */
+    .pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 500; padding: 3px 9px; border-radius: 20px;
+      background: var(--paper2); border: 1px solid var(--border); color: var(--ink2);
+    }
+    .pill-amber { background: var(--amber-bg); border-color: var(--amber-bdr); color: var(--amber); }
+    .pill-green { background: var(--green-bg); border-color: #86efac;            color: var(--green); }
+    .pill-red   { background: var(--red-bg);   border-color: #fca5a5;            color: var(--red); }
+
+    /* ── View Router ────────────────────────────────────────── */
+    [data-view="b"] .view-a { display: none; }
+    [data-view="a"] .view-b { display: none; }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       VIEW A — SEARCH
+       ═══════════════════════════════════════════════════════════ */
+
+    /* Problem context banner */
+    .problem-banner {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px 24px 20px; margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+    .problem-banner-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--ink3); margin-bottom: 14px;
+    }
+
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px;
+    }
+    .stat-cell {
+      text-align: center; padding: 14px 10px;
+      background: var(--paper2); border-radius: var(--radius-sm);
+    }
+    .stat-val { font-size: 22px; font-weight: 700; display: block; }
+    .stat-val.danger { color: var(--red); }
+    .stat-val.warn   { color: var(--amber); }
+    .stat-val.good   { color: var(--green); }
+    .stat-lbl { font-size: 12px; color: var(--ink3); margin-top: 3px; line-height: 1.4; }
+
+    .quotes-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .quote-chip {
+      background: var(--paper2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      font-size: 13px; color: var(--ink2); line-height: 1.5;
+      position: relative;
+    }
+    .quote-chip::before {
+      content: '\201C'; font-size: 24px; line-height: 1;
+      color: var(--ink3); display: block; margin-bottom: 4px;
+    }
+    .quote-chip cite {
+      display: block; font-style: normal; font-size: 11px; font-weight: 600;
+      color: var(--ink3); margin-top: 8px; text-transform: uppercase; letter-spacing: .04em;
+    }
+
+    /* Search header */
+    .search-header {
+      display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px;
+    }
+    .search-header h1 { font-size: 20px; font-weight: 700; }
+    .search-header p  { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+
+    /* Freelancer card grid */
+    .freelancer-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+
+    .f-card {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+      cursor: pointer; transition: box-shadow .2s, border-color .2s; position: relative;
+    }
+    .f-card:hover  { box-shadow: var(--shadow-lg); border-color: #c7d2e0; }
+    .f-card:focus  { outline: 2px solid var(--green); outline-offset: 2px; }
+
+    .f-card-top {
+      display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px;
+    }
+    .avatar {
+      flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; font-weight: 700; color: #fff;
+      border: 3px solid var(--paper); box-shadow: 0 0 0 2px var(--border);
+    }
+    .f-card-meta h2  { font-size: 16px; font-weight: 700; }
+    .f-card-meta p   { font-size: 13px; color: var(--ink2); margin-top: 1px; }
+    .f-card-pills    { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+
+    .trust-strip     { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .trust-strip-empty { font-size: 12px; color: var(--ink3); font-style: italic; align-items: center; }
+
+    .f-card-footer {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .price      { font-size: 17px; font-weight: 700; }
+    .price small { font-size: 12px; font-weight: 400; color: var(--ink3); }
+    .first-note  { font-size: 11px; color: var(--amber); margin-top: 3px; }
+
+    .baseline-tag {
+      position: absolute; top: 14px; right: 14px;
+      font-size: 11px; background: var(--paper2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 2px 8px; color: var(--ink3); font-weight: 600;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════
+       VIEW B — PROFILE
+       ═══════════════════════════════════════════════════════════ */
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; color: var(--ink2); text-decoration: none;
+      margin-bottom: 20px; cursor: pointer; transition: color .15s;
+    }
+    .back-link:hover { color: var(--ink); }
+
+    .profile-layout {
+      display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start;
+    }
+
+    /* Hero */
+    .hero {
+      background: var(--paper); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px;
+    }
+    .hero-top { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0; }
+    .avatar-lg {
+      flex-shrink: 0; width: 80px; height: 80px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; font-weight: 700; color: #fff;
+      border: 3px solid var(--paper); box-shadow: 0 0 0 2px var(--border);
+    }
+    .hero-meta h1 { font-size: 22px; font-weight: 700; }
+    .hero-meta p  { font-size: 15px; color: var(--ink2); margin-top: 2px; }
+    .hero-pills   { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+    .hero-trust-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 10px;
+      padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border);
+    }
+    .trust-stat .value { font-size: 17px; font-weight: 700; }
+    .trust-stat .label { font-size: 12px; color: var(--ink3); margin-top: 2px; }
+
+    /* Voice quote */
+    blockquote.voice {
+      border-left: 3px solid var(--green); padding: 10px 16px;
+      margin-top: 16px; background: var(--green-bg);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 14px; font-style: italic; color: var(--ink2); line-height: 1.65;
+    }
+    blockquote.voice cite {
+      display: block; font-style: normal; font-size: 12px;
+      font-weight: 600; color: var(--green); margin-top: 8px;
+    }
+
+    /* Portfolio */
+    .portfolio-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+    .portfolio-tile {
+      border-radius: var(--radius-sm); overflow: hidden; cursor: pointer;
+      border: 1px solid var(--border); transition: box-shadow .15s;
+    }
+    .portfolio-tile:hover  { box-shadow: var(--shadow-lg); }
+    .portfolio-tile:focus  { outline: 2px solid var(--green); outline-offset: 2px; }
+    .p-thumb {
+      height: 88px; display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 700; color: rgba(255,255,255,.65);
+    }
+    .p-info { padding: 10px 12px; background: var(--paper); }
+    .p-info h4 { font-size: 13px; font-weight: 600; }
+    .p-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 11px; font-weight: 600; padding: 2px 7px;
+      border-radius: 10px; margin-top: 4px;
+    }
+    .p-badge.confirmed    { background: var(--green-bg); color: var(--green); }
+    .p-badge.self-reported { background: var(--paper2); color: var(--ink3); border: 1px solid var(--border); }
+
+    /* Reputation */
+    .rep-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .rep-row:last-child { border-bottom: none; }
+    .rep-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .rep-body          { flex: 1; }
+    .rep-body strong   { font-size: 14px; display: block; }
+    .rep-body span     { font-size: 12px; color: var(--ink2); }
+    .rep-badge {
+      font-size: 12px; font-weight: 600; color: var(--green);
+      background: var(--green-bg); border-radius: 10px; padding: 2px 8px; white-space: nowrap;
+    }
+
+    /* Honest limits */
+    .honest-limits {
+      background: var(--amber-bg); border: 1px solid var(--amber-bdr);
+      border-radius: var(--radius); padding: 18px 20px; margin-top: 16px;
+    }
+    .honest-limits h3 {
+      font-size: 13px; font-weight: 700; color: var(--amber);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    }
+    .hl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .hl-col h4 { font-size: 12px; font-weight: 700; color: var(--ink2); margin-bottom: 6px; }
+    .hl-col ul { list-style: none; }
+    .hl-col li { font-size: 13px; color: var(--ink2); padding: 3px 0 3px 18px; position: relative; }
+    .hl-col li::before { content: attr(data-icon); position: absolute; left: 0; }
+
+    /* Vouches */
+    .vouch-item {
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      overflow: hidden; margin-bottom: 8px;
+    }
+    .vouch-hdr {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+      cursor: pointer; background: var(--paper); user-select: none; transition: background .15s;
+    }
+    .vouch-hdr:hover { background: var(--paper2); }
+    .vouch-hdr:focus { outline: 2px solid var(--green); outline-offset: -2px; }
+    .v-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .v-meta         { flex: 1; }
+    .v-meta strong  { font-size: 14px; display: block; }
+    .v-meta span    { font-size: 12px; color: var(--ink2); }
+    .v-chevron { color: var(--ink3); transition: transform .2s; font-size: 10px; }
+    .vouch-item[data-open] .v-chevron { transform: rotate(90deg); }
+
+    .vouch-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border); background: var(--paper); }
+    .vouch-item[data-open] .vouch-body { display: block; }
+    .vouch-body blockquote { font-size: 14px; color: var(--ink2); font-style: italic; line-height: 1.65; padding: 12px 0; }
+    .vouch-verify { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--green); font-weight: 500; }
+
+    /* Sidebar */
+    .sidebar { position: sticky; top: 72px; }
+
+    .ring-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 18px; }
+    .ring-svg  { width: 120px; height: 120px; }
+    .ring-bg   { fill: none; stroke: #e2e8f0; stroke-width: 10; }
+    .ring-fill {
+      fill: none; stroke: var(--green); stroke-width: 10; stroke-linecap: round;
+      transform: rotate(-90deg); transform-origin: 50% 50%;
+      transition: stroke-dashoffset .6s ease;
+    }
+    .ring-lbl    { font-size: 20px; font-weight: 700; fill: var(--ink);  text-anchor: middle; dominant-baseline: middle; }
+    .ring-sublbl { font-size: 11px;                   fill: var(--ink3); text-anchor: middle; dominant-baseline: middle; }
+
+    .rising-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: linear-gradient(135deg,#fef3c7,#fde68a);
+      border: 1px solid #fbbf24; color: #92400e;
+      font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-top: 8px;
+    }
+
+    .badge-list { list-style: none; margin-bottom: 14px; }
+    .badge-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; padding: 9px 10px; background: none; border: none;
+      border-radius: var(--radius-sm); cursor: pointer;
+      font-size: 13px; color: var(--ink); text-align: left; font-family: inherit;
+      transition: background .15s;
+    }
+    .badge-btn:hover { background: var(--paper2); }
+    .badge-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+    .b-icon {
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .b-icon.ok      { background: var(--green-bg); color: var(--green); }
+    .b-icon.pending { background: var(--amber-bg); color: var(--amber); }
+    .b-text         { flex: 1; }
+    .b-text strong  { display: block; font-weight: 600; font-size: 13px; }
+    .b-text span    { font-size: 11px; color: var(--ink3); }
+    .b-arrow        { color: var(--ink3); font-size: 10px; }
+
+    .risk-box {
+      background: var(--green-bg); border: 1px solid #86efac;
+      border-radius: var(--radius-sm); padding: 14px 16px; margin-bottom: 14px;
+    }
+    .risk-box h4 {
+      font-size: 11px; font-weight: 700; color: var(--green);
+      text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
+    }
+    .risk-box ul { list-style: none; }
+    .risk-box li { font-size: 13px; color: var(--ink2); padding: 3px 0 3px 18px; position: relative; }
+    .risk-box li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+
+    .cta-wrap  { display: flex; flex-direction: column; gap: 8px; }
+    .slot-note { font-size: 12px; color: var(--ink3); text-align: center; margin-top: 4px; }
+
+    .sidebar-empty {
+      background: var(--paper); border: 1px solid var(--amber-bdr);
+      border-radius: var(--radius); padding: 24px; text-align: center;
+    }
+    .sidebar-empty h3 { font-size: 16px; font-weight: 700; color: var(--amber); margin-bottom: 8px; }
+    .sidebar-empty p  { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+    .sidebar-stat     { font-size: 32px; font-weight: 700; color: var(--red); margin: 12px 0 4px; }
+
+    /* ── Badge Drawer ───────────────────────────────────────── */
+    .overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 200;
+    }
+    .overlay.active { display: block; }
+
+    .drawer {
+      position: fixed; top: 0; right: 0; bottom: 0; width: 400px;
+      background: var(--paper); z-index: 300;
+      transform: translateX(100%); transition: transform .25s ease;
+      overflow-y: auto; box-shadow: var(--shadow-lg);
+    }
+    .drawer.open { transform: translateX(0); }
+
+    .drawer-hdr {
+      padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .drawer-hdr-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .drawer-hdr-text      { flex: 1; }
+    .drawer-hdr-text h2   { font-size: 16px; font-weight: 700; }
+    .drawer-hdr-text p    { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+    .drawer-close {
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      color: var(--ink3); padding: 2px; line-height: 1;
+    }
+    .drawer-body { padding: 20px; }
+
+    .receipt-tbl { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
+    .receipt-tbl tr   { border-bottom: 1px solid var(--border); }
+    .receipt-tbl tr:last-child { border-bottom: none; }
+    .receipt-tbl td   { padding: 9px 4px; color: var(--ink2); }
+    .receipt-tbl td:last-child { text-align: right; font-weight: 600; color: var(--ink); }
+
+    .drawer-note {
+      font-size: 13px; color: var(--ink2); background: var(--paper2);
+      border-radius: var(--radius-sm); padding: 12px 14px; line-height: 1.55;
+    }
+
+    /* ── Booking Modal ──────────────────────────────────────── */
+    .modal-wrap {
+      display: none; position: fixed; inset: 0; z-index: 400;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-wrap.active { display: flex; }
+    .modal {
+      background: var(--paper); border-radius: var(--radius);
+      box-shadow: var(--shadow-lg); width: 100%; max-width: 520px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal-hdr {
+      padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .modal-hdr h2  { font-size: 17px; font-weight: 700; }
+    .modal-close {
+      background: none; border: none; font-size: 22px; cursor: pointer;
+      color: var(--ink3); line-height: 1;
+    }
+    .step-dots { display: flex; gap: 6px; align-items: center; padding: 14px 20px 0; }
+    .step-dot  { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all .2s; }
+    .step-dot.active { background: var(--green); width: 20px; border-radius: 4px; }
+
+    .modal-body   { padding: 20px; }
+    .modal-footer { padding: 14px 20px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+      color: var(--ink); background: var(--paper); outline: none; transition: border-color .15s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--green); box-shadow: 0 0 0 3px rgba(0,165,80,.12);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+
+    .prot-list { list-style: none; }
+    .prot-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 0; border-bottom: 1px solid var(--border);
+    }
+    .prot-item:last-child { border-bottom: none; }
+    .prot-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .prot-body strong { font-size: 14px; display: block; }
+    .prot-body p      { font-size: 13px; color: var(--ink2); margin-top: 2px; }
+
+    .success-wrap { text-align: center; padding: 28px 16px 8px; }
+    .success-icon {
+      width: 64px; height: 64px; background: var(--green-bg); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin: 0 auto 14px;
+    }
+    .success-wrap h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .success-wrap p  { font-size: 14px; color: var(--ink2); line-height: 1.6; }
+    .first-note {
+      margin-top: 16px; background: linear-gradient(135deg,#fef3c7,#fde68a);
+      border: 1px solid #fbbf24; border-radius: var(--radius-sm);
+      padding: 14px 16px; font-size: 14px; color: #92400e; font-weight: 500;
+      text-align: left; line-height: 1.55;
+    }
+
+    /* ── Portfolio Modal ────────────────────────────────────── */
+    .p-modal-thumb {
+      height: 140px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 700; color: rgba(255,255,255,.65);
+      border-radius: var(--radius-sm); margin-bottom: 14px;
+    }
+    .p-detail-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 10px; margin: 12px 0;
+    }
+    .p-stat { text-align: center; background: var(--paper2); border-radius: var(--radius-sm); padding: 12px; }
+    .p-stat .val { font-size: 15px; font-weight: 700; }
+    .p-stat .lbl { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+    /* ── Mobile sticky CTA ──────────────────────────────────── */
+    .mobile-cta {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--paper); border-top: 1px solid var(--border);
+      padding: 12px 20px; z-index: 50; gap: 12px; align-items: center;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .profile-layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; order: -1; }
+      .mobile-cta { display: flex; }
+    }
+    @media (max-width: 700px) {
+      .freelancer-grid  { grid-template-columns: 1fr; }
+      .portfolio-grid   { grid-template-columns: repeat(2,1fr); }
+      .stats-row        { grid-template-columns: repeat(2,1fr); }
+      .quotes-row       { grid-template-columns: 1fr; }
+      .hl-row           { grid-template-columns: 1fr; }
+      .p-detail-grid    { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 480px) {
+      .hero-trust-grid  { grid-template-columns: repeat(2,1fr); }
+      .drawer           { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+  </style>
+</head>
+<body data-view="a">
+
+<!-- ── Demo Bar ────────────────────────────────────────────── -->
+<div class="demo-bar" role="banner">
+  <span class="demo-lab">Lab 3</span>
+  <span class="demo-hyp">Hypothesis: Verification badges + social proof → more first hires for zero-review freelancers</span>
+  <span class="demo-metric trust-visible">2.3% → 14% booking-rate gap</span>
+  <div class="demo-right">
+    <span class="ks-label" id="ksLabel">Kill switch: ON</span>
+    <label class="toggle" aria-label="Toggle trust layer">
+      <input type="checkbox" id="trustToggle" checked>
+      <span class="toggle-slider"></span>
+    </label>
+    <span style="font-size:12px;color:#64748b;">Trust layer</span>
+  </div>
+</div>
+
+<!-- ── Kill-switch OFF banner ──────────────────────────────── -->
+<div class="trust-off-banner trust-off-msg" role="alert" aria-live="polite">
+  <strong style="color:#f59e0b;">Trust layer OFF</strong>
+  &nbsp;— This is the baseline experience users see today. 68% exit without booking.
+</div>
+
+<!-- ── Nav ─────────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="logo" onclick="showView('a'); return false;" aria-label="Roster home">
+    <span class="logo-mark" aria-hidden="true">R</span>
+    <span>Roster</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Find talent</a></li>
+    <li><a href="#">How it works</a></li>
+    <li><a href="#">Enterprise</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="#" class="btn btn-secondary">Sign in</a>
+    <a href="#" class="btn btn-primary">Post a project</a>
+  </div>
+</nav>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     VIEW A — SEARCH RESULTS
+     ══════════════════════════════════════════════════════════ -->
+<div class="view-a">
+<div class="main">
+
+  <!-- Problem context -->
+  <div class="problem-banner" role="region" aria-label="Trust gap context">
+    <p class="problem-banner-label">Why this matters — real platform data</p>
+    <div class="stats-row">
+      <div class="stat-cell">
+        <span class="stat-val danger">2.3%</span>
+        <span class="stat-lbl">Booking rate, zero-review providers</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-val good">14%</span>
+        <span class="stat-lbl">Booking rate, reviewed providers</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-val warn">19 days</span>
+        <span class="stat-lbl">Median days to a new provider's first booking</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-val danger">68%</span>
+        <span class="stat-lbl">Search → profile → exit without booking</span>
+      </div>
+    </div>
+    <div class="quotes-row">
+      <div class="quote-chip">
+        I'm great at my job but I'll never get a review if no one books me first. It's a chicken-and-egg trap.
+        <cite>New provider · 0 bookings</cite>
+      </div>
+      <div class="quote-chip">
+        I wish I could see <em>something</em> — a verified ID, a portfolio, anything — before I commit money.
+        <cite>Buyer · abandoned search</cite>
+      </div>
+      <div class="quote-chip">
+        The established providers are booked out for weeks. I'd try someone new if I felt safe doing it.
+        <cite>Repeat buyer</cite>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search header -->
+  <div class="search-header">
+    <div>
+      <h1>Browse New Talent</h1>
+      <p>Showing new providers — 0 reviews, available now</p>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-secondary" style="font-size:13px;">Filter</button>
+      <button class="btn btn-secondary" style="font-size:13px;">Sort: Newest ↓</button>
+    </div>
+  </div>
+
+  <!-- Freelancer cards -->
+  <div class="freelancer-grid" role="list">
+
+    <!-- Card 1: Marcus Reid — focal (click → profile) -->
+    <div class="f-card" role="listitem button" tabindex="0"
+         onclick="showProfile()" onkeydown="if(event.key==='Enter')showProfile()"
+         aria-label="View Marcus Reid's profile">
+      <div class="f-card-top">
+        <div class="avatar" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">MR</div>
+        <div class="f-card-meta">
+          <h2>Marcus Reid</h2>
+          <p>UX Designer · San Francisco</p>
+          <div class="f-card-pills">
+            <span class="pill pill-amber">0 reviews</span>
+            <span class="pill trust-visible pill-green">⚡ Rising Talent</span>
+          </div>
+        </div>
+      </div>
+      <div class="trust-strip trust-visible">
+        <span class="pill pill-green">✓ ID Verified</span>
+        <span class="pill pill-green">✓ Portfolio Confirmed</span>
+        <span class="pill pill-green">✓ Skills Tested</span>
+      </div>
+      <div class="trust-off-msg trust-strip">
+        <span class="trust-strip-empty">No verified data available</span>
+      </div>
+      <div class="f-card-footer">
+        <div>
+          <div class="price">$75 <small>/ hr</small></div>
+          <div class="first-note trust-visible">⏱ Avg. 19 days to first booking — be the first</div>
+        </div>
+        <button class="btn btn-primary" onclick="event.stopPropagation();showProfile()" style="font-size:13px;">
+          View profile →
+        </button>
+      </div>
+    </div>
+
+    <!-- Card 2: Priya Sharma -->
+    <div class="f-card" role="listitem button" tabindex="0"
+         onclick="showProfile()" onkeydown="if(event.key==='Enter')showProfile()"
+         aria-label="View Priya Sharma's profile">
+      <div class="f-card-top">
+        <div class="avatar" style="background:linear-gradient(135deg,#ec4899,#f43f5e);">PS</div>
+        <div class="f-card-meta">
+          <h2>Priya Sharma</h2>
+          <p>Content Strategist · New York</p>
+          <div class="f-card-pills">
+            <span class="pill pill-amber">0 reviews</span>
+            <span class="pill trust-visible pill-green">⚡ Rising Talent</span>
+          </div>
+        </div>
+      </div>
+      <div class="trust-strip trust-visible">
+        <span class="pill pill-green">✓ ID Verified</span>
+        <span class="pill pill-green">✓ Portfolio Confirmed</span>
+        <span class="pill">Skills test: Pending</span>
+      </div>
+      <div class="trust-off-msg trust-strip">
+        <span class="trust-strip-empty">No verified data available</span>
+      </div>
+      <div class="f-card-footer">
+        <div>
+          <div class="price">$60 <small>/ hr</small></div>
+          <div class="first-note trust-visible">⏱ Avg. 19 days to first booking — be the first</div>
+        </div>
+        <button class="btn btn-secondary" onclick="event.stopPropagation();" style="font-size:13px;">View profile</button>
+      </div>
+    </div>
+
+    <!-- Card 3: James Okafor -->
+    <div class="f-card" role="listitem button" tabindex="0"
+         onclick="showProfile()" onkeydown="if(event.key==='Enter')showProfile()"
+         aria-label="View James Okafor's profile">
+      <div class="f-card-top">
+        <div class="avatar" style="background:linear-gradient(135deg,#0ea5e9,#06b6d4);">JO</div>
+        <div class="f-card-meta">
+          <h2>James Okafor</h2>
+          <p>Full-Stack Developer · Austin</p>
+          <div class="f-card-pills">
+            <span class="pill pill-amber">0 reviews</span>
+            <span class="pill trust-visible pill-green">⚡ Rising Talent</span>
+          </div>
+        </div>
+      </div>
+      <div class="trust-strip trust-visible">
+        <span class="pill pill-green">✓ ID Verified</span>
+        <span class="pill pill-green">✓ Portfolio Confirmed</span>
+        <span class="pill pill-green">✓ Skills Tested</span>
+      </div>
+      <div class="trust-off-msg trust-strip">
+        <span class="trust-strip-empty">No verified data available</span>
+      </div>
+      <div class="f-card-footer">
+        <div>
+          <div class="price">$85 <small>/ hr</small></div>
+          <div class="first-note trust-visible">⏱ Avg. 19 days to first booking — be the first</div>
+        </div>
+        <button class="btn btn-secondary" onclick="event.stopPropagation();" style="font-size:13px;">View profile</button>
+      </div>
+    </div>
+
+    <!-- Card 4: Sarah Chen — reviewed BASELINE -->
+    <div class="f-card" role="listitem" tabindex="0" style="opacity:.82;cursor:default;" aria-label="Sarah Chen - established provider baseline">
+      <span class="baseline-tag">BASELINE — Reviewed</span>
+      <div class="f-card-top">
+        <div class="avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">SC</div>
+        <div class="f-card-meta">
+          <h2>Sarah Chen</h2>
+          <p>Brand Designer · Seattle</p>
+          <div class="f-card-pills">
+            <span class="pill pill-green">★ 4.9 · 18 reviews</span>
+            <span class="pill">Top Rated</span>
+          </div>
+        </div>
+      </div>
+      <div class="trust-strip">
+        <span class="pill pill-green">✓ 18 verified reviews</span>
+        <span class="pill">Next available: 3 weeks</span>
+      </div>
+      <div class="f-card-footer">
+        <div>
+          <div class="price">$95 <small>/ hr</small></div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:3px;">Booked out 3 weeks</div>
+        </div>
+        <button class="btn btn-secondary" style="font-size:13px;opacity:.5;cursor:not-allowed;" disabled aria-disabled="true">
+          Unavailable
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /freelancer-grid -->
+</div><!-- /main -->
+</div><!-- /view-a -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     VIEW B — FREELANCER PROFILE
+     ══════════════════════════════════════════════════════════ -->
+<div class="view-b">
+<div class="main">
+
+  <a class="back-link" onclick="showView('a'); return false;" href="#" role="link">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back to Browse New Talent
+  </a>
+
+  <div class="profile-layout">
+
+    <!-- ── Main Column ─────────────────────────────────────── -->
+    <div class="profile-main">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-top">
+          <div class="avatar-lg" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">MR</div>
+          <div class="hero-meta">
+            <h1>Marcus Reid</h1>
+            <p>UX Designer · San Francisco, CA</p>
+            <div class="hero-pills">
+              <span class="pill pill-amber">0 Reviews · New Provider</span>
+              <span class="pill">Joined 3 weeks ago</span>
+              <span class="pill trust-visible pill-green">⚡ Rising Talent — Week 3</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-trust-grid trust-visible" role="region" aria-label="Quick trust stats">
+          <div class="trust-stat">
+            <div class="value">94%</div>
+            <div class="label">Response rate</div>
+          </div>
+          <div class="trust-stat">
+            <div class="value">Passed</div>
+            <div class="label">UX skills test</div>
+          </div>
+          <div class="trust-stat">
+            <div class="value">&lt;2 hrs</div>
+            <div class="label">Avg. reply time</div>
+          </div>
+        </div>
+        <div class="trust-off-msg" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-size:13px;color:var(--ink3);font-style:italic;display:flex;align-items:center;gap:6px;">
+          ⚠ No verified trust signals — platform baseline. Enable trust layer to see verification.
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="card">
+        <p class="card-title">About</p>
+        <p style="color:var(--ink2);font-size:14px;line-height:1.65;">
+          I'm a UX designer with 6 years of experience building product interfaces for fintech, health tech, and SaaS.
+          I specialise in user research, information architecture, and high-fidelity Figma prototyping. I recently left
+          a senior role at a Series B fintech to freelance full-time — I'm new to Roster but not new to the work.
+        </p>
+        <blockquote class="voice">
+          I'm great at my job but I'll never get a review if no one books me first. It's a chicken-and-egg trap.
+          <cite>— Marcus, New provider · 0 bookings on Roster</cite>
+        </blockquote>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="card" style="margin-top:16px;">
+        <p class="card-title">Portfolio</p>
+        <div class="portfolio-grid">
+
+          <div class="portfolio-tile" onclick="openPortfolio(0,this)" role="button" tabindex="0"
+               aria-label="Open Fintech Dashboard case study">
+            <div class="p-thumb" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">FD</div>
+            <div class="p-info">
+              <h4>Fintech Dashboard</h4>
+              <span class="p-badge confirmed trust-visible">✓ Client-confirmed</span>
+              <span class="p-badge self-reported trust-off-msg" style="display:none;">Self-reported</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" onclick="openPortfolio(1,this)" role="button" tabindex="0"
+               aria-label="Open E-commerce App case study">
+            <div class="p-thumb" style="background:linear-gradient(135deg,#0ea5e9,#6366f1);">EA</div>
+            <div class="p-info">
+              <h4>E-commerce Mobile App</h4>
+              <span class="p-badge confirmed trust-visible">✓ Client-confirmed</span>
+              <span class="p-badge self-reported trust-off-msg" style="display:none;">Self-reported</span>
+            </div>
+          </div>
+
+          <div class="portfolio-tile" onclick="openPortfolio(2,this)" role="button" tabindex="0"
+               aria-label="Open SaaS Onboarding case study">
+            <div class="p-thumb" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">SO</div>
+            <div class="p-info">
+              <h4>SaaS Onboarding Flow</h4>
+              <span class="p-badge self-reported">Self-reported</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Imported Reputation -->
+      <div class="card" style="margin-top:16px;">
+        <p class="card-title">Imported Reputation</p>
+        <div class="trust-visible">
+          <div class="rep-row">
+            <div class="rep-icon" style="background:#0a66c2;">in</div>
+            <div class="rep-body">
+              <strong>LinkedIn — Work history verified</strong>
+              <span>Senior UX Designer · Meridian Pay (2021–2024) · Lead Designer · Sprout Health (2019–2021)</span>
+            </div>
+            <span class="rep-badge">Matched ✓</span>
+          </div>
+          <div class="rep-row">
+            <div class="rep-icon" style="background:#24292e;">GH</div>
+            <div class="rep-body">
+              <strong>GitHub — 3 public design-system repos</strong>
+              <span>Active contributor · Last commit 4 days ago</span>
+            </div>
+            <span class="rep-badge">Verified ✓</span>
+          </div>
+          <div class="rep-row">
+            <div class="rep-icon" style="background:#ff7262;">Be</div>
+            <div class="rep-body">
+              <strong>Behance — Portfolio linked</strong>
+              <span>142 followers · 6 published projects</span>
+            </div>
+            <span class="rep-badge">Linked ✓</span>
+          </div>
+        </div>
+        <div class="trust-off-msg" style="font-size:13px;color:var(--ink3);font-style:italic;padding:8px 0;display:flex;align-items:center;">
+          External reputation signals not available in baseline view.
+        </div>
+      </div>
+
+      <!-- Vouches -->
+      <div class="card trust-visible" style="margin-top:16px;">
+        <p class="card-title">Vouches from past collaborators</p>
+
+        <div class="vouch-item">
+          <div class="vouch-hdr" onclick="toggleVouch(this)" role="button" tabindex="0"
+               aria-expanded="false" aria-controls="vouch-body-1">
+            <div class="v-avatar" style="background:linear-gradient(135deg,#0ea5e9,#2563eb);">DP</div>
+            <div class="v-meta">
+              <strong>David Park</strong>
+              <span>Product Lead · Stripe (worked together 2023)</span>
+            </div>
+            <span class="v-chevron" aria-hidden="true">▶</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-1">
+            <blockquote>"Marcus redesigned our internal tools dashboard while embedded with the team. He ran discovery sessions, delivered clear specs, and shipped ahead of schedule. I'd hire him again without hesitation."</blockquote>
+            <div class="vouch-verify">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6.5" stroke="#00a550"/>
+                <path d="M4 7l2 2 4-4" stroke="#00a550" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              LinkedIn relationship verified · Roster confirmed connection
+            </div>
+          </div>
+        </div>
+
+        <div class="vouch-item">
+          <div class="vouch-hdr" onclick="toggleVouch(this)" role="button" tabindex="0"
+               aria-expanded="false" aria-controls="vouch-body-2">
+            <div class="v-avatar" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">LT</div>
+            <div class="v-meta">
+              <strong>Linda Torres</strong>
+              <span>Founder · NovaCare (contract project 2024)</span>
+            </div>
+            <span class="v-chevron" aria-hidden="true">▶</span>
+          </div>
+          <div class="vouch-body" id="vouch-body-2">
+            <blockquote>"We hired Marcus for a health app prototype — six-week engagement. He was structured, communicative, and the output was genuinely impressive. We shipped it to users in two months."</blockquote>
+            <div class="vouch-verify">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6.5" stroke="#00a550"/>
+                <path d="M4 7l2 2 4-4" stroke="#00a550" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              LinkedIn relationship verified · Roster confirmed connection
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Honest Limits -->
+      <div class="honest-limits">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="7" stroke="#b45309" stroke-width="1.5"/>
+            <path d="M8 5v4M8 10.5v.5" stroke="#b45309" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          What we can't tell you yet
+        </h3>
+        <div class="hl-row">
+          <div class="hl-col">
+            <h4>Not available</h4>
+            <ul>
+              <li data-icon="✗">Roster client reviews (0 completed projects)</li>
+              <li data-icon="✗">On-platform earnings history</li>
+              <li data-icon="✗">Dispute or refund record</li>
+            </ul>
+          </div>
+          <div class="hl-col">
+            <h4>What we verified instead</h4>
+            <ul>
+              <li data-icon="✓">Government ID matched to profile</li>
+              <li data-icon="✓">2 of 3 portfolio projects client-confirmed</li>
+              <li data-icon="✓">UX Design skills test: 87th percentile</li>
+              <li data-icon="✓">Work history cross-referenced via LinkedIn</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /profile-main -->
+
+
+    <!-- ── Sidebar ─────────────────────────────────────────── -->
+    <div class="sidebar">
+
+      <!-- TRUST ON -->
+      <div class="trust-visible">
+        <div class="card">
+
+          <!-- Verification ring -->
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 120 120" role="img" aria-label="5 of 6 verifications complete">
+              <circle class="ring-bg"   cx="60" cy="60" r="48"/>
+              <circle class="ring-fill" cx="60" cy="60" r="48"
+                      stroke-dasharray="301.6" stroke-dashoffset="50.3" id="ringFill"/>
+              <text class="ring-lbl"    x="60" y="55" id="ringLabel">5/6</text>
+              <text class="ring-sublbl" x="60" y="70">verified</text>
+            </svg>
+            <span class="rising-chip">⚡ Rising Talent — Week 3</span>
+            <p style="font-size:12px;color:var(--ink3);text-align:center;margin-top:4px;">
+              Top 12% of new providers
+            </p>
+          </div>
+
+          <!-- Badge list -->
+          <ul class="badge-list" role="list">
+            <li>
+              <button class="badge-btn" onclick="openDrawer('id',this)" aria-expanded="false">
+                <span class="b-icon ok">✓</span>
+                <span class="b-text"><strong>Identity Verified</strong><span>Government ID + selfie</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+            <li>
+              <button class="badge-btn" onclick="openDrawer('portfolio',this)" aria-expanded="false">
+                <span class="b-icon ok">✓</span>
+                <span class="b-text"><strong>Portfolio Confirmed</strong><span>2 of 3 projects verified by clients</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+            <li>
+              <button class="badge-btn" onclick="openDrawer('skills',this)" aria-expanded="false">
+                <span class="b-icon ok">✓</span>
+                <span class="b-text"><strong>Skills Tested</strong><span>UX Design · 87th percentile</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+            <li>
+              <button class="badge-btn" onclick="openDrawer('linkedin',this)" aria-expanded="false">
+                <span class="b-icon ok">✓</span>
+                <span class="b-text"><strong>LinkedIn Matched</strong><span>Work history cross-referenced</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+            <li>
+              <button class="badge-btn" onclick="openDrawer('response',this)" aria-expanded="false">
+                <span class="b-icon ok">✓</span>
+                <span class="b-text"><strong>Response Rate: 94%</strong><span>Replies within 2 hours</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+            <li>
+              <button class="badge-btn" onclick="openDrawer('firstReview',this)" aria-expanded="false">
+                <span class="b-icon pending">⏳</span>
+                <span class="b-text"><strong>First Review</strong><span>Pending — 0 projects completed</span></span>
+                <span class="b-arrow" aria-hidden="true">▶</span>
+              </button>
+            </li>
+          </ul>
+
+          <!-- Risk reversal -->
+          <div class="risk-box">
+            <h4>Platform protections</h4>
+            <ul>
+              <li>Escrow — payment only on delivery</li>
+              <li>Free revision if scope not met</li>
+              <li>48-hour cancellation, no charge</li>
+              <li>Dispute resolution guaranteed</li>
+            </ul>
+          </div>
+
+          <!-- CTA -->
+          <div class="cta-wrap">
+            <button class="btn btn-primary btn-full" onclick="openBooking()">
+              Request first project →
+            </button>
+            <button class="btn btn-secondary btn-full">Send a message</button>
+          </div>
+          <p class="slot-note">Available now · Usually replies within 2 hours</p>
+        </div>
+      </div>
+
+      <!-- TRUST OFF empty state -->
+      <div class="trust-off-msg" style="display:none;">
+        <div class="sidebar-empty">
+          <h3>⚠ No trust signals</h3>
+          <p>This provider has 0 reviews. Without additional signals, there's nothing to reassure you before committing money.</p>
+          <div class="sidebar-stat">68%</div>
+          <p style="font-size:13px;color:var(--ink3);">of visitors exit this profile without booking</p>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+            <button class="btn btn-secondary btn-full" disabled aria-disabled="true"
+                    style="opacity:.45;cursor:not-allowed;">
+              Request project
+            </button>
+            <p style="font-size:12px;color:var(--ink3);margin-top:8px;">
+              Would you hire with no information?
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sidebar -->
+  </div><!-- /profile-layout -->
+</div><!-- /main -->
+
+<!-- Mobile sticky CTA -->
+<div class="mobile-cta trust-visible" role="region" aria-label="Hire Marcus">
+  <div style="flex:1;">
+    <div style="font-size:15px;font-weight:700;">Marcus Reid</div>
+    <div style="font-size:12px;color:var(--ink3);">$75/hr · Available now</div>
+  </div>
+  <button class="btn btn-primary" onclick="openBooking()">Request project →</button>
+</div>
+</div><!-- /view-b -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     BADGE DRAWER
+     ══════════════════════════════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="closeAll()" aria-hidden="true"></div>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+  <div class="drawer-hdr">
+    <div class="drawer-hdr-icon" id="drawerIcon"></div>
+    <div class="drawer-hdr-text">
+      <h2 id="drawerTitle"></h2>
+      <p  id="drawerSubtitle"></p>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     BOOKING MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="modal-wrap" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="bookingTitle">Request a project</h2>
+      <button class="modal-close" onclick="closeBooking()" aria-label="Close">×</button>
+    </div>
+    <div class="step-dots" role="list" aria-label="Booking progress">
+      <div class="step-dot active" id="dot0" role="listitem"></div>
+      <div class="step-dot"        id="dot1" role="listitem"></div>
+      <div class="step-dot"        id="dot2" role="listitem"></div>
+    </div>
+    <div class="modal-body"   id="bookingBody"></div>
+    <div class="modal-footer" id="bookingFooter"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     PORTFOLIO MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="modal-wrap" id="portfolioModal" role="dialog" aria-modal="true" aria-labelledby="portfolioTitle">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="portfolioTitle">Case study</h2>
+      <button class="modal-close" onclick="closePortfolio()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body" id="portfolioBody"></div>
+  </div>
+</div>
+
+
+<script>
+/* ── DATA ─────────────────────────────────────────────────── */
+
+const BADGES = {
+  id: {
+    icon: '🪪', iconBg: 'var(--blue-bg)',
+    title: 'Identity Verified',
+    subtitle: 'Government ID cross-referenced with live selfie',
+    receipt: [
+      ['Method',      'Government-issued photo ID + live selfie match'],
+      ['Verified by', 'Jumio identity platform'],
+      ['Match score', '99.4% confidence'],
+      ['Completed',   'Aug 19, 2026'],
+      ['Expires',     'Aug 19, 2028'],
+    ],
+    note: "Marcus's legal identity has been confirmed. This does not verify skills or work quality — that's what the other badges are for."
+  },
+  portfolio: {
+    icon: '🖼️', iconBg: 'var(--green-bg)',
+    title: 'Portfolio Confirmed',
+    subtitle: '2 of 3 projects verified by named clients',
+    receipt: [
+      ['Fintech Dashboard',       'Client-confirmed (David Park, Stripe)'],
+      ['E-commerce Mobile App',   'Client-confirmed (Linda Torres, NovaCare)'],
+      ['SaaS Onboarding Flow',    'Self-reported (client unavailable for contact)'],
+      ['Verification date',       'Sep 1, 2026'],
+    ],
+    note: 'Client-confirmed means the named client responded to our verification request and confirmed Marcus worked on the project. We do not verify quality, only participation.'
+  },
+  skills: {
+    icon: '🎯', iconBg: 'var(--blue-bg)',
+    title: 'Skills Tested',
+    subtitle: 'UX Design assessment — proctored, 90 minutes',
+    receipt: [
+      ['Test',       'UX Design Foundations (v3)'],
+      ['Score',      '87th percentile'],
+      ['Proctored',  'Yes — webcam + screen recording'],
+      ['Taken',      'Aug 22, 2026'],
+      ['Valid for',  '2 years'],
+    ],
+    note: 'Assessment covers information architecture, wireframing, usability heuristics, and Figma proficiency. Top 20% of all test-takers.'
+  },
+  linkedin: {
+    icon: '🔗', iconBg: 'var(--blue-bg)',
+    title: 'LinkedIn Matched',
+    subtitle: 'Claimed work history cross-referenced',
+    receipt: [
+      ['LinkedIn',                     'linkedin.com/in/marcusreid (verified owner)'],
+      ['Meridian Pay, Sr. UX Designer', '2021–2024 · Confirmed'],
+      ['Sprout Health, Lead Designer',  '2019–2021 · Confirmed'],
+      ['Match confidence',              'High (tenure + title match)'],
+    ],
+    note: 'We ask providers to verify LinkedIn ownership and cross-reference job titles and tenures against public profile data. Gaps or discrepancies are flagged before approval.'
+  },
+  response: {
+    icon: '⚡', iconBg: 'var(--amber-bg)',
+    title: 'Response Rate: 94%',
+    subtitle: 'Measured across 30 days of platform activity',
+    receipt: [
+      ['Messages received',           '16 new conversation threads'],
+      ['Responses within 2 hours',    '15 (94%)'],
+      ['Average first response time', '47 minutes'],
+      ['Measured period',             'Aug 10 – Sep 9, 2026'],
+    ],
+    note: 'Response rate is measured from the first message in each new conversation. Pre-booking enquiries only. Replies to existing threads are not counted.'
+  },
+  firstReview: {
+    icon: '⭐', iconBg: 'var(--amber-bg)',
+    title: 'First Review — Pending',
+    subtitle: 'Waiting on first completed project',
+    receipt: [
+      ['Status',               'Pending first completed project'],
+      ['Projects completed',   '0'],
+      ['Reviews received',     '0'],
+    ],
+    note: "Once Marcus completes his first project on Roster, the client will be invited to leave a verified review. This is the one signal we can't substitute — you'd be creating it."
+  }
+};
+
+const PROJECTS = [
+  {
+    title:    'Fintech Dashboard Redesign',
+    gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)', initials: 'FD',
+    status:   'Client-confirmed', client: 'Meridian Pay (Series B fintech)',
+    year:     '2023', role: 'Lead UX Designer',
+    outcome:  'Reduced support tickets 34% after launch. Team adopted the new design system org-wide.',
+    tools:    'Figma, Maze, Miro'
+  },
+  {
+    title:    'E-commerce Mobile App',
+    gradient: 'linear-gradient(135deg,#0ea5e9,#6366f1)', initials: 'EA',
+    status:   'Client-confirmed', client: 'NovaCare (health startup)',
+    year:     '2024', role: 'UX Designer & Prototyper',
+    outcome:  'Shipped to users in 8 weeks. App Store rating: 4.6★ within first 90 days.',
+    tools:    'Figma, Principle, UserTesting'
+  },
+  {
+    title:    'SaaS Onboarding Flow',
+    gradient: 'linear-gradient(135deg,#10b981,#0ea5e9)', initials: 'SO',
+    status:   'Self-reported', client: 'Confidential (NDA)',
+    year:     '2022', role: 'Contract UX Designer',
+    outcome:  'Improved trial-to-paid conversion approximately 18% (per client-shared analytics).',
+    tools:    'Figma, Hotjar, Intercom'
+  }
+];
+
+/* ── VIEW ROUTER ──────────────────────────────────────────── */
+
+function showView(v) {
+  document.body.dataset.view = v;
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showProfile() {
+  showView('b');
+}
+
+/* ── TRUST TOGGLE ─────────────────────────────────────────── */
+
+const trustToggle = document.getElementById('trustToggle');
+const ksLabel     = document.getElementById('ksLabel');
+
+trustToggle.addEventListener('change', function () {
+  const on = this.checked;
+  document.body.classList.toggle('trust-off', !on);
+  ksLabel.textContent   = on ? 'Kill switch: ON' : 'Kill switch: OFF — baseline';
+  ksLabel.style.color   = on ? '' : '#f59e0b';
+});
+
+/* ── BADGE DRAWER ─────────────────────────────────────────── */
+
+let drawerTrigger = null;
+
+function openDrawer(key, triggerEl) {
+  const b = BADGES[key];
+  if (!b) return;
+  drawerTrigger = triggerEl;
+  triggerEl.setAttribute('aria-expanded', 'true');
+
+  document.getElementById('drawerIcon').textContent       = b.icon;
+  document.getElementById('drawerIcon').style.background  = b.iconBg;
+  document.getElementById('drawerTitle').textContent      = b.title;
+  document.getElementById('drawerSubtitle').textContent   = b.subtitle;
+
+  const rows = b.receipt.map(([lbl, val]) =>
+    `<tr><td>${lbl}</td><td>${val}</td></tr>`
+  ).join('');
+
+  const firstHireNote = key === 'firstReview' ? `
+    <div style="margin-top:14px;background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:var(--radius-sm);padding:14px 16px;font-size:13px;color:#92400e;line-height:1.55;">
+      <strong>You'd be Marcus's first client.</strong><br>
+      Your review after the project will directly unlock his access to more work — and you're fully protected by escrow throughout.
+    </div>
+  ` : '';
+
+  document.getElementById('drawerBody').innerHTML = `
+    <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:12px;">
+      Verification receipt
+    </p>
+    <table class="receipt-tbl">${rows}</table>
+    <div class="drawer-note">${b.note}</div>
+    ${firstHireNote}
+  `;
+
+  document.getElementById('overlay').classList.add('active');
+  document.getElementById('drawer').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('active');
+  drawerTrigger?.setAttribute('aria-expanded', 'false');
+  drawerTrigger?.focus();
+  drawerTrigger = null;
+}
+
+/* ── VOUCH ACCORDION ──────────────────────────────────────── */
+
+function toggleVouch(hdr) {
+  const item   = hdr.closest('.vouch-item');
+  const isOpen = item.hasAttribute('data-open');
+  if (isOpen) {
+    item.removeAttribute('data-open');
+    hdr.setAttribute('aria-expanded', 'false');
+  } else {
+    item.setAttribute('data-open', '');
+    hdr.setAttribute('aria-expanded', 'true');
+  }
+}
+
+/* ── PORTFOLIO MODAL ──────────────────────────────────────── */
+
+let portfolioTrigger = null;
+
+function openPortfolio(idx, triggerEl) {
+  const p = PROJECTS[idx];
+  if (!p) return;
+  portfolioTrigger = triggerEl;
+
+  document.getElementById('portfolioTitle').textContent = p.title;
+
+  const statusBadge = p.status === 'Client-confirmed'
+    ? `<span class="p-badge confirmed">✓ Client-confirmed</span>`
+    : `<span class="p-badge self-reported">${p.status}</span>`;
+
+  document.getElementById('portfolioBody').innerHTML = `
+    <div class="p-modal-thumb" style="background:${p.gradient};">${p.initials}</div>
+    ${statusBadge}
+    <div class="p-detail-grid">
+      <div class="p-stat"><div class="val">${p.year}</div><div class="lbl">Year</div></div>
+      <div class="p-stat"><div class="val" style="font-size:13px;">${p.role.split(' ').slice(0,3).join(' ')}</div><div class="lbl">Role</div></div>
+      <div class="p-stat"><div class="val" style="font-size:12px;">${p.client.split('(')[0].trim()}</div><div class="lbl">Client</div></div>
+    </div>
+    <div style="background:var(--paper2);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;">
+      <p style="font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:4px;">Outcome</p>
+      <p style="font-size:14px;color:var(--ink);line-height:1.6;">${p.outcome}</p>
+    </div>
+    <p style="font-size:12px;color:var(--ink3);">Tools: ${p.tools}</p>
+  `;
+
+  document.getElementById('portfolioModal').classList.add('active');
+  document.getElementById('overlay').classList.add('active');
+}
+
+function closePortfolio() {
+  document.getElementById('portfolioModal').classList.remove('active');
+  document.getElementById('overlay').classList.remove('active');
+  portfolioTrigger?.focus();
+  portfolioTrigger = null;
+}
+
+/* ── BOOKING MODAL ────────────────────────────────────────── */
+
+let bookingStep = 0;
+
+const STEPS = [
+  {
+    title: 'Request a project',
+    body: () => `
+      <div class="form-group">
+        <label for="projTitle">Project title</label>
+        <input type="text" id="projTitle" placeholder="e.g. Redesign our onboarding flow" />
+      </div>
+      <div class="form-group">
+        <label for="projDesc">What do you need?</label>
+        <textarea id="projDesc" placeholder="Describe the project, goals, and timeline..."></textarea>
+      </div>
+      <div class="form-group">
+        <label for="projBudget">Budget range</label>
+        <select id="projBudget">
+          <option>$500 – $1,000</option>
+          <option>$1,000 – $3,000</option>
+          <option selected>$3,000 – $5,000</option>
+          <option>$5,000 – $10,000</option>
+          <option>$10,000+</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="projDate">Target start date</label>
+        <input type="date" id="projDate" value="2026-09-16" />
+      </div>
+    `,
+    footer: () => `
+      <button class="btn btn-secondary" onclick="closeBooking()">Cancel</button>
+      <button class="btn btn-primary"   onclick="nextStep()">Next: Review protections →</button>
+    `
+  },
+  {
+    title: 'Your protections',
+    body: () => `
+      <p style="font-size:14px;color:var(--ink2);margin-bottom:16px;">
+        Because this is Marcus's first project on Roster, all of these apply automatically.
+      </p>
+      <ul class="prot-list">
+        <li class="prot-item">
+          <div class="prot-icon" style="background:var(--green-bg);">🔒</div>
+          <div class="prot-body">
+            <strong>Escrow payment</strong>
+            <p>Funds are held until you approve the deliverable. Marcus is paid only when you're satisfied.</p>
+          </div>
+        </li>
+        <li class="prot-item">
+          <div class="prot-icon" style="background:var(--blue-bg);">🔄</div>
+          <div class="prot-body">
+            <strong>Free revision guarantee</strong>
+            <p>If the first delivery doesn't match the agreed scope, one full revision is included at no charge.</p>
+          </div>
+        </li>
+        <li class="prot-item">
+          <div class="prot-icon" style="background:var(--amber-bg);">⏱</div>
+          <div class="prot-body">
+            <strong>48-hour cancellation window</strong>
+            <p>Cancel within 48 hours of project start for a full refund — no questions asked.</p>
+          </div>
+        </li>
+        <li class="prot-item">
+          <div class="prot-icon" style="background:var(--red-bg);">🛡️</div>
+          <div class="prot-body">
+            <strong>Dispute resolution</strong>
+            <p>If something goes wrong, Roster mediates and guarantees a fair outcome within 5 business days.</p>
+          </div>
+        </li>
+      </ul>
+    `,
+    footer: () => `
+      <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+      <button class="btn btn-primary"   onclick="nextStep()">Confirm &amp; send request</button>
+    `
+  },
+  {
+    title: 'Request sent!',
+    body: () => `
+      <div class="success-wrap">
+        <div class="success-icon">✓</div>
+        <h2>Request sent to Marcus</h2>
+        <p>Marcus typically replies within 2 hours. You'll get a notification when he accepts.</p>
+        <div class="first-note">
+          🎉 <strong>You're Marcus's first client on Roster.</strong><br>
+          After the project, you'll be invited to leave a verified review. Your review will directly
+          help the next buyer decide — and unlock Marcus's access to more work.
+        </div>
+      </div>
+    `,
+    footer: () => `
+      <button class="btn btn-primary" onclick="closeBooking()">Done</button>
+    `
+  }
+];
+
+function openBooking() {
+  bookingStep = 0;
+  renderStep();
+  document.getElementById('bookingModal').classList.add('active');
+  document.getElementById('overlay').classList.add('active');
+}
+
+function closeBooking() {
+  document.getElementById('bookingModal').classList.remove('active');
+  document.getElementById('overlay').classList.remove('active');
+}
+
+function nextStep() {
+  if (bookingStep < STEPS.length - 1) { bookingStep++; renderStep(); }
+}
+
+function prevStep() {
+  if (bookingStep > 0) { bookingStep--; renderStep(); }
+}
+
+function renderStep() {
+  const s = STEPS[bookingStep];
+  document.getElementById('bookingTitle').textContent  = s.title;
+  document.getElementById('bookingBody').innerHTML     = s.body();
+  document.getElementById('bookingFooter').innerHTML   = s.footer();
+
+  for (let i = 0; i < 3; i++) {
+    document.getElementById('dot' + i).classList.toggle('active', i === bookingStep);
+  }
+
+  // On success: complete the ring 5/6 → 6/6
+  if (bookingStep === 2) {
+    const ring  = document.getElementById('ringFill');
+    const label = document.getElementById('ringLabel');
+    if (ring)  ring.style.strokeDashoffset = '0';
+    if (label) label.textContent = '6/6';
+  }
+}
+
+/* ── CLOSE ALL ────────────────────────────────────────────── */
+
+function closeAll() {
+  closeDrawer();
+  closeBooking();
+  closePortfolio();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAll();
+});
+
+/* ── KEYBOARD: vouch headers ──────────────────────────────── */
+document.querySelectorAll('.vouch-hdr').forEach(h => {
+  h.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleVouch(h); }
+  });
+});
+</script>
+</body>
+</html>
