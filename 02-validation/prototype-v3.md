@@ -31,7 +31,7 @@ The prototype puts a real decision in front of the user: a zero-review freelance
 ## Iteration log (v1 → v3)
 
 | Version | Change | Why |
-|---|---|---|
+| --- | --- | --- |
 | v1 | Single freelancer profile, warm dark palette, all trust signals visible | Establish the design language and core component set |
 | v2 | Visual reskin to cool-slate / bright-green palette, pill meta chips, crisper hierarchy | Higher-fidelity reference closer to production quality |
 | v3 | Added search results view with problem context banner, real user quotes, baseline card for comparison; trust toggle now has observable kill switch; profile shows 5/6 ring, "Rising Talent" early social proof, booking success closes the loop | Tests the hypothesis rather than just demonstrating the design — exposes the 2.3% → 14% gap as on-screen context, not background research |
