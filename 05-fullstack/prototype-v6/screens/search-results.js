@@ -6,7 +6,8 @@ var CATEGORY_LABELS = {
   employment_history:   'Employment Verified',
   eo_insurance:         'Insurance Verified',
   payout_account:       'Payout Verified',
-  business_registration:'Business Reg.'
+  business_registration:'Business Reg.',
+  skills_test:          'Skills Tested'
 };
 
 function showSearchResults() {
@@ -104,7 +105,7 @@ function buildProviderCard(p) {
 
 /* ── Banner renderer ───────────────────────────────────────── */
 
-function renderBanner(metricsMap) {
+function renderBanner(metricsMap, quotes) {
   var statsRow  = document.getElementById('stats-row');
   var quotesRow = document.getElementById('quotes-row');
   if (!statsRow || !quotesRow) return;
@@ -125,7 +126,8 @@ function renderBanner(metricsMap) {
     '</div>';
   }).join('');
 
-  quotesRow.innerHTML = USER_QUOTES.map(function (q) {
+  var activeQuotes = (quotes && quotes.length) ? quotes : USER_QUOTES;
+  quotesRow.innerHTML = activeQuotes.map(function (q) {
     return '<div class="quote-chip">' + q.text + '<cite>' + q.cite + '</cite></div>';
   }).join('');
 }
@@ -182,20 +184,23 @@ document.addEventListener('DOMContentLoaded', function () {
       .select('*, verification_checks(*)')
       .order('is_baseline', { ascending: true })
       .order('rate_usd',    { ascending: true }),
-    db.from('platform_metrics').select('*')
+    db.from('platform_metrics').select('*'),
+    db.from('user_quotes').select('*').eq('active', true).order('sort_order')
   ]).then(function (results) {
-    var providers = results[0];
-    var metrics   = results[1];
+    var providers   = results[0];
+    var metrics     = results[1];
+    var quotesResult= results[2];
 
     if (!providers.error && providers.data && providers.data.length) {
       renderGrid(providers.data);
     }
 
+    var metricsMap = {};
     if (!metrics.error && metrics.data && metrics.data.length) {
-      var map = {};
-      metrics.data.forEach(function (m) { map[m.key] = m; });
-      renderBanner(map);
+      metrics.data.forEach(function (m) { metricsMap[m.key] = m; });
     }
+    var liveQuotes = (!quotesResult.error && quotesResult.data) ? quotesResult.data : null;
+    renderBanner(metricsMap, liveQuotes);
   }).catch(function (err) {
     console.warn('Supabase unavailable, keeping static data:', err);
   });

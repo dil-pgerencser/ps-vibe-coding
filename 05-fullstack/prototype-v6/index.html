@@ -41,7 +41,8 @@
     <li><a href="#">Enterprise</a></li>
   </ul>
   <div class="nav-right">
-    <a href="#" class="btn btn-secondary">Sign in</a>
+    <a href="#" id="nav-sign-in"  class="btn btn-secondary" onclick="openAuthModal(); return false;">Sign in</a>
+    <a href="#" id="nav-sign-out" class="btn btn-secondary" style="display:none;" onclick="authSignOut(); return false;">Sign out</a>
     <a href="#" class="btn btn-primary">Post a project</a>
   </div>
 </nav>
@@ -230,26 +231,26 @@
         <div class="hero-top">
           <div class="avatar-lg" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">MR</div>
           <div class="hero-meta">
-            <h1>Marcus Reid</h1>
-            <p>UX Designer · San Francisco, CA</p>
+            <h1 id="prof-name">Marcus Reid</h1>
+            <p id="prof-title-loc">UX Designer · San Francisco, CA</p>
             <div class="hero-pills">
               <span class="pill pill-amber">0 Reviews · New Provider</span>
               <span class="pill">Joined 3 weeks ago</span>
-              <span class="pill trust-visible pill-green">⚡ Rising Talent — Week 3</span>
+              <span id="prof-rising-pill" class="pill trust-visible pill-green">⚡ Rising Talent — Week 3</span>
             </div>
           </div>
         </div>
         <div class="hero-trust-grid trust-visible" role="region" aria-label="Quick trust stats">
           <div class="trust-stat">
-            <div class="value">94%</div>
+            <div id="prof-response-rate" class="value">94%</div>
             <div class="label">Response rate</div>
           </div>
           <div class="trust-stat">
-            <div class="value">Passed</div>
+            <div id="prof-skills-stat" class="value">Passed</div>
             <div class="label">UX skills test</div>
           </div>
           <div class="trust-stat">
-            <div class="value">&lt;2 hrs</div>
+            <div id="prof-reply-time" class="value">&lt;2 hrs</div>
             <div class="label">Avg. reply time</div>
           </div>
         </div>
@@ -261,7 +262,7 @@
       <!-- About -->
       <div class="card">
         <p class="card-title">About</p>
-        <p style="color:var(--ink2);font-size:14px;line-height:1.65;">
+        <p id="prof-bio" style="color:var(--ink2);font-size:14px;line-height:1.65;">
           I'm a UX designer with 6 years of experience building product interfaces for fintech, health tech, and SaaS.
           I specialise in user research, information architecture, and high-fidelity Figma prototyping. I recently left
           a senior role at a Series B fintech to freelance full-time — I'm new to Roster but not new to the work.
@@ -275,7 +276,7 @@
       <!-- Portfolio -->
       <div class="card" style="margin-top:16px;">
         <p class="card-title">Portfolio</p>
-        <div class="portfolio-grid">
+        <div id="portfolio-grid" class="portfolio-grid">
 
           <div class="portfolio-tile" onclick="openPortfolio(0,this)" role="button" tabindex="0"
                aria-label="Open Fintech Dashboard case study">
@@ -312,7 +313,7 @@
       <!-- Imported Reputation -->
       <div class="card" style="margin-top:16px;">
         <p class="card-title">Imported Reputation</p>
-        <div class="trust-visible">
+        <div id="rep-rows" class="trust-visible">
           <div class="rep-row">
             <div class="rep-icon" style="background:#0a66c2;">in</div>
             <div class="rep-body">
@@ -347,6 +348,7 @@
       <div class="card trust-visible" style="margin-top:16px;">
         <p class="card-title">Vouches from past collaborators</p>
 
+        <div id="vouch-list">
         <div class="vouch-item">
           <div class="vouch-hdr" onclick="toggleVouch(this)" role="button" tabindex="0"
                aria-expanded="false" aria-controls="vouch-body-1">
@@ -390,6 +392,7 @@
             </div>
           </div>
         </div>
+        </div><!-- /vouch-list -->
       </div>
 
       <!-- Marketplace Reviews — empty state -->
@@ -469,15 +472,15 @@
               <text class="ring-lbl"    x="60" y="53" id="ringLabel">4/6</text>
               <text class="ring-sublbl" x="60" y="67">verified</text>
             </svg>
-            <span class="rising-chip">⚡ Rising Talent — Week 3</span>
-            <p style="font-size:12px;color:var(--ink3);text-align:center;margin-top:4px;">
+            <span id="prof-rising-chip" class="rising-chip">⚡ Rising Talent — Week 3</span>
+            <p id="prof-percentile" style="font-size:12px;color:var(--ink3);text-align:center;margin-top:4px;">
               Top 12% of new providers
             </p>
             <span class="ring-hint">View all verifications ▶</span>
           </button>
 
           <!-- Badge list — each opens Verification Detail screen -->
-          <ul class="badge-list" role="list">
+          <ul id="badge-list" class="badge-list" role="list">
             <li>
               <button class="badge-btn" onclick="showScreen(SCREENS.VERIFICATION_DETAIL)" aria-label="View Government ID details">
                 <span class="b-icon ok">✓</span>
@@ -540,7 +543,7 @@
             </button>
             <button class="btn btn-secondary btn-full">Send a message</button>
           </div>
-          <p class="slot-note">Available now · Usually replies within 2 hours</p>
+          <p id="slot-note" class="slot-note">Available now · Usually replies within 2 hours</p>
         </div>
       </div>
 
@@ -570,8 +573,8 @@
 <!-- Mobile sticky CTA -->
 <div class="mobile-cta trust-visible" role="region" aria-label="Hire Marcus">
   <div style="flex:1;">
-    <div style="font-size:15px;font-weight:700;">Marcus Reid</div>
-    <div style="font-size:12px;color:var(--ink3);">$75/hr · Available now</div>
+    <div id="mob-cta-name" style="font-size:15px;font-weight:700;">Marcus Reid</div>
+    <div id="mob-cta-rate" style="font-size:12px;color:var(--ink3);">$75/hr · Available now</div>
   </div>
   <button class="btn btn-primary" onclick="openBooking()">Request project →</button>
 </div>
@@ -663,7 +666,7 @@
 
   <div class="vd-layout">
     <h1 class="vd-page-title">Verification Detail</h1>
-    <p class="vd-page-sub">Marcus Reid · 4 verified · 1 pending · 1 unavailable</p>
+    <p id="vd-page-sub" class="vd-page-sub">Marcus Reid · 4 verified · 1 pending · 1 unavailable</p>
 
     <div class="card">
       <p class="card-title">All verification checks</p>
@@ -682,6 +685,7 @@
         </div>
       </div>
 
+      <div id="vd-checks-list">
       <!-- 1. Government ID — Verified -->
       <div class="vd-row">
         <span class="b-icon ok" aria-hidden="true">✓</span>
@@ -753,6 +757,7 @@
           <p class="vd-proof">Confirms a verified bank account is on file for disbursements. Payout account linked and verified as of Sep 2, 2026.</p>
         </div>
       </div>
+      </div><!-- /vd-checks-list -->
 
     </div><!-- /card -->
 
@@ -797,7 +802,7 @@
 
       <h1 class="error-heading">Booking couldn't be completed</h1>
 
-      <p class="error-body">
+      <p id="error-body-1" class="error-body">
         Your request to book Marcus Reid didn't go through. Nothing has been charged and no request was sent.
       </p>
 
@@ -805,7 +810,7 @@
         <strong>What happened:</strong> We couldn't process your booking request at this time. This is usually a temporary issue — it may be a brief network hiccup or a problem on our end. Your project details have been saved.
       </div>
 
-      <p class="error-body">
+      <p id="error-body-2" class="error-body">
         You can try again now or come back to Marcus's profile and pick up where you left off. If the problem persists, our support team can help.
       </p>
 
@@ -877,6 +882,21 @@
 </div>
 
 
+<!-- ══════════════════════════════════════════════════════════
+     AUTH MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="modal-wrap" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="authTitle">Sign in to Roster</h2>
+      <button class="modal-close" onclick="closeAuthModal()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body"   id="authBody"></div>
+    <div class="modal-footer" id="authFooter"></div>
+  </div>
+</div>
+
+
 <!-- ── Scripts (dependency order) ──────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="data/metrics.js"></script>
@@ -893,5 +913,6 @@
 <script src="screens/freelancer-profile.js"></script>
 <script src="screens/verification-detail.js"></script>
 <script src="screens/booking-error.js"></script>
+<script src="components/auth-modal.js"></script>
 </body>
 </html>

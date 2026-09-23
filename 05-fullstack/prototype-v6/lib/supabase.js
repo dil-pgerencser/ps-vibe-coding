@@ -108,3 +108,36 @@ async function trackEvent(eventName, { providerId, buyerId, properties } = {}) {
    trackEvent('booking_error_shown',      { providerId });
    trackEvent('search_exit_without_booking', { properties: { last_provider_slug: slug } });
 */
+
+
+/* ── Auth helpers ──────────────────────────────────────────── */
+
+async function signInWithPassword(email, password) {
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  return data.user;
+}
+
+async function signUpWithPassword(email, password) {
+  const { data, error } = await db.auth.signUp({ email, password });
+  if (error) throw error;
+  return data.user;
+}
+
+async function signOut() {
+  const { error } = await db.auth.signOut();
+  if (error) throw error;
+}
+
+async function getCurrentUser() {
+  const { data: { session } } = await db.auth.getSession();
+  return session ? session.user : null;
+}
+
+async function ensureBuyerRow(user) {
+  const { error } = await db.from('buyers').upsert(
+    { id: user.id, email: user.email },
+    { onConflict: 'id' }
+  );
+  if (error) console.error('ensureBuyerRow failed:', error);
+}
