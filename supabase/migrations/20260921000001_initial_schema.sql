@@ -238,6 +238,9 @@ create policy "buyers: own row"
 create policy "bookings: own rows"
   on bookings for all using (buyer_id = auth.uid());
 
--- Events: anyone can insert; no reads via API (use service role for analytics)
+-- Events: anyone can insert; anon can read (prototype analytics panel)
 create policy "events: insert only"
   on events for insert with check (true);
+
+create policy "events: anon read"
+  on events for select using (true);

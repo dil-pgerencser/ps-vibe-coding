@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roster · Analytics</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    header .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
+    header .back { font-size: 13px; color: #94a3b8; text-decoration: none; }
+    header .back:hover { color: #e2e8f0; }
+    header h1 { font-size: 15px; font-weight: 500; color: #cbd5e1; margin-left: auto; }
+
+    main {
+      max-width: 860px;
+      margin: 48px auto;
+      padding: 0 24px;
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    /* Metric cards */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 48px;
+    }
+    @media (max-width: 700px) { .cards { grid-template-columns: repeat(2, 1fr); } }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 20px 16px 16px;
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+    }
+    .card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1;
+    }
+    .card-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 6px;
+    }
+    .card-value.loading { color: #cbd5e1; font-size: 24px; }
+
+    /* Event table */
+    .table-wrap {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: #f8fafc;
+      text-align: left;
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-screen   { background: #dbeafe; color: #1d4ed8; }
+    .badge-booking  { background: #dcfce7; color: #15803d; }
+    .badge-toggle   { background: #fef9c3; color: #92400e; }
+    .badge-other    { background: #f1f5f9; color: #475569; }
+
+    .error-msg {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 16px;
+      color: #991b1b;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .refresh-btn {
+      background: #0f172a;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: auto;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .refresh-btn:hover { background: #1e293b; }
+
+    .empty { padding: 32px; text-align: center; color: #94a3b8; font-size: 13px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">R Roster</span>
+  <a class="back" href="index.html">← Back to prototype</a>
+  <h1>Analytics · prototype-v6</h1>
+</header>
+
+<main>
+  <div id="error-box" class="error-msg" style="display:none;"></div>
+
+  <div class="section-title">Usage metrics</div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Visitors</div>
+      <div class="card-value loading" id="m-visitors">…</div>
+      <div class="card-desc">Unique sessions</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Page Views</div>
+      <div class="card-value loading" id="m-pageviews">…</div>
+      <div class="card-desc">Total screens loaded</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Views / Visit</div>
+      <div class="card-value loading" id="m-vpv">…</div>
+      <div class="card-desc">Depth explored</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Duration</div>
+      <div class="card-value loading" id="m-duration">…</div>
+      <div class="card-desc">Avg time on prototype</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Bounce Rate</div>
+      <div class="card-value loading" id="m-bounce">…</div>
+      <div class="card-desc">Left after 1 screen</div>
+    </div>
+  </div>
+
+  <div style="display:flex; align-items:center; margin-bottom:16px;">
+    <div class="section-title" style="margin-bottom:0;">Recent events</div>
+    <button class="refresh-btn" onclick="load()">Refresh</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Event</th>
+          <th>Session</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody id="events-body">
+        <tr><td colspan="4" class="empty">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+const SUPABASE_URL  = 'https://guxainjrsxswcfwpvsio.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1eGFpbmpyc3hzd2Nmd3B2c2lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5ODc4NTMsImV4cCI6MjEwNTU2Mzg1M30.aFV4srhMC-xfajQnmJIXMehgbsQm9CuUQTbI4yd3tps';
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+function fmtDuration(ms) {
+  if (ms < 1000) return '<1s';
+  const s = Math.round(ms / 1000);
+  if (s < 60) return `${s}s`;
+  return `${Math.floor(s / 60)}m ${s % 60}s`;
+}
+
+function fmtTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) +
+    ' ' + d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function badgeClass(name) {
+  if (name === 'screen_viewed') return 'badge-screen';
+  if (name.includes('booking')) return 'badge-booking';
+  if (name.includes('toggle')) return 'badge-toggle';
+  return 'badge-other';
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  el.classList.remove('loading');
+}
+
+async function load() {
+  document.getElementById('error-box').style.display = 'none';
+  document.getElementById('events-body').innerHTML = '<tr><td colspan="4" class="empty">Loading…</td></tr>';
+
+  const { data: events, error } = await db
+    .from('events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (error) {
+    document.getElementById('error-box').textContent = 'Could not load events: ' + error.message;
+    document.getElementById('error-box').style.display = 'block';
+    set('m-visitors', '—'); set('m-pageviews', '—');
+    set('m-vpv', '—'); set('m-duration', '—'); set('m-bounce', '—');
+    return;
+  }
+
+  // ── Compute metrics ───────────────────────────────────────
+  const sessionMap = {};   // session_id → { screenViews, times[] }
+
+  for (const e of events) {
+    const sid = e.properties?.session_id;
+    if (!sid) continue;
+    if (!sessionMap[sid]) sessionMap[sid] = { screenViews: 0, times: [] };
+    if (e.event_name === 'screen_viewed') sessionMap[sid].screenViews++;
+    if (e.created_at) sessionMap[sid].times.push(new Date(e.created_at).getTime());
+  }
+
+  const sessions = Object.values(sessionMap);
+  const visitors  = sessions.length;
+  const pageViews = events.filter(e => e.event_name === 'screen_viewed').length;
+  const vpv       = visitors > 0 ? (pageViews / visitors).toFixed(1) : '—';
+
+  const durations = sessions
+    .filter(s => s.times.length > 1)
+    .map(s => Math.max(...s.times) - Math.min(...s.times));
+  const avgDuration = durations.length > 0
+    ? fmtDuration(durations.reduce((a, b) => a + b, 0) / durations.length)
+    : '—';
+
+  const bounced    = sessions.filter(s => s.screenViews <= 1).length;
+  const bounceRate = visitors > 0 ? Math.round((bounced / visitors) * 100) + '%' : '—';
+
+  set('m-visitors',  visitors  || '0');
+  set('m-pageviews', pageViews || '0');
+  set('m-vpv',       vpv);
+  set('m-duration',  avgDuration);
+  set('m-bounce',    bounceRate);
+
+  // ── Render events table ───────────────────────────────────
+  const tbody = document.getElementById('events-body');
+  if (!events.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="empty">No events recorded yet. Open the prototype to start tracking.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = events.slice(0, 100).map(e => {
+    const sid   = e.properties?.session_id ?? '—';
+    const short = sid === '—' ? '—' : sid.slice(0, 8);
+    const props = { ...e.properties };
+    delete props.session_id;
+    const detail = Object.keys(props).length ? JSON.stringify(props) : '';
+    return `<tr>
+      <td>${e.created_at ? fmtTime(e.created_at) : '—'}</td>
+      <td><span class="badge ${badgeClass(e.event_name)}">${e.event_name}</span></td>
+      <td style="font-family:monospace;font-size:12px;color:#94a3b8;" title="${sid}">${short}…</td>
+      <td style="color:#64748b;font-size:12px;">${detail}</td>
+    </tr>`;
+  }).join('');
+}
+
+load();
+</script>
+</body>
+</html>
